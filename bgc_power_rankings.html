@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGC Community Draft — Power Rankings & Tournament Projections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;500;700;900&family=Barlow:ital,wght@0,400;0,500;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0d0d0d;
+  --paper: #f5f1e8;
+  --paper-dark: #ece8dd;
+  --rule: #c8c0aa;
+  --accent: #c8102e;
+  --gold: #c49a2a;
+  --muted: #6b6458;
+  --white: #ffffff;
+
+  --uncs:    #D4537E;
+  --grind:   #1D9E75;
+  --forsc:   #378ADD;
+  --pals:    #D85A30;
+  --titans:  #7F77DD;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── MASTHEAD ─────────────────────────── */
+.masthead {
+  background: var(--ink);
+  padding: 3.5rem 2rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 6px solid var(--accent);
+}
+.masthead::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 16px,
+    rgba(255,255,255,.018) 16px, rgba(255,255,255,.018) 32px);
+}
+.mh-eye {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .28em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: .7rem;
+  position: relative;
+}
+.mh-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 10vw, 7rem);
+  line-height: .9; letter-spacing: .04em;
+  color: var(--paper); position: relative;
+}
+.mh-title em { color: var(--accent); font-style: normal; display: block; }
+.mh-rule { width: 60px; height: 3px; background: var(--gold); margin: 1.6rem auto .8rem; position: relative; }
+.mh-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .95rem; font-weight: 300;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: rgba(245,241,232,.45); position: relative;
+}
+
+/* ── PAGE WRAPPER ─────────────────────── */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+/* ── SECTION HEADING ──────────────────── */
+.section-head {
+  display: flex; align-items: baseline; gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.section-head h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.4rem; letter-spacing: .05em;
+  line-height: 1;
+}
+.section-head .sh-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted);
+}
+.section-rule { flex: 1; height: 1px; background: var(--rule); }
+
+/* ── POWER RANKINGS ───────────────────── */
+.power-list { display: flex; flex-direction: column; gap: .5rem; }
+
+.pr-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 120px 90px 80px;
+  align-items: center;
+  gap: 1rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  padding: 1.1rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.pr-row:hover { border-color: #999; }
+.pr-row::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 5px;
+}
+.pr-row.r1::before { background: var(--uncs); }
+.pr-row.r2::before { background: var(--grind); }
+.pr-row.r3::before { background: var(--forsc); }
+.pr-row.r4::before { background: var(--pals); }
+.pr-row.r5::before { background: var(--titans); }
+
+.pr-rank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.8rem; line-height: 1;
+  color: var(--paper-dark);
+  text-align: center;
+  user-select: none;
+}
+.pr-row.r1 .pr-rank { color: var(--uncs); opacity: .5; }
+.pr-row.r2 .pr-rank { color: var(--grind); opacity: .5; }
+.pr-row.r3 .pr-rank { color: var(--forsc); opacity: .5; }
+.pr-row.r4 .pr-rank { color: var(--pals); opacity: .5; }
+.pr-row.r5 .pr-rank { color: var(--titans); opacity: .5; }
+
+.pr-info {}
+.pr-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.7rem; letter-spacing: .04em; line-height: 1;
+}
+.pr-captain {
+  font-size: 12px; color: var(--muted);
+  font-style: italic; margin-top: .15rem;
+}
+.pr-captain strong { font-style: normal; color: var(--ink); }
+
+.pr-bar-wrap {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.pr-bar-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); display: flex;
+  justify-content: space-between; align-items: center;
+}
+.pr-bar-track {
+  height: 6px; background: var(--paper-dark);
+  border-radius: 3px; overflow: hidden;
+}
+.pr-bar-fill { height: 100%; border-radius: 3px; }
+
+.pr-score {
+  text-align: center;
+}
+.pr-score-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem; line-height: 1; display: block;
+}
+.pr-score-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); display: block;
+}
+
+.pr-badges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 2px 9px; border-radius: 2px;
+  white-space: nowrap;
+}
+.badge-fav   { background: #d4edda; color: #155724; }
+.badge-cont  { background: #dce8f5; color: #1a3a6b; }
+.badge-mid   { background: #fff3cd; color: #7a5400; }
+.badge-low   { background: #f8d7da; color: #721c24; }
+
+.pr-analysis {
+  grid-column: 1 / -1;
+  font-size: .87rem; line-height: 1.68;
+  color: #3a3530;
+  border-top: 1px solid var(--paper-dark);
+  padding-top: .8rem; margin-top: .2rem;
+}
+
+/* ── ROUND ROBIN ──────────────────────── */
+.rr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.match-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+.match-header {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); padding: .5rem 1rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+.match-body { padding: .9rem 1rem; }
+.match-teams {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: .5rem;
+  margin-bottom: .7rem;
+}
+.match-team { flex: 1; }
+.match-team-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+  line-height: 1.1;
+}
+.match-team-cap {
+  font-size: 10px; color: var(--muted);
+  font-style: italic; margin-top: 1px;
+}
+.match-team.loser .match-team-name { opacity: .4; }
+.match-team.winner .match-team-name { }
+.match-team.right { text-align: right; }
+
+.vs-divider {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem; color: var(--muted);
+  flex-shrink: 0;
+}
+
+.match-prob-bar {
+  height: 4px; background: var(--paper-dark);
+  border-radius: 2px; overflow: hidden;
+  position: relative; margin-bottom: .45rem;
+}
+.match-prob-fill {
+  height: 100%; border-radius: 2px;
+  position: absolute; left: 0; top: 0;
+}
+
+.match-prob-labels {
+  display: flex; justify-content: space-between;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; color: var(--muted);
+}
+.match-prob-labels .win-prob {
+  font-weight: 700; color: var(--ink);
+}
+
+.match-result {
+  margin-top: .6rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 2px;
+  display: inline-block;
+  background: var(--paper); color: var(--muted);
+}
+
+/* ── STANDINGS TABLE ──────────────────── */
+.standings-wrap {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+.standings-table {
+  width: 100%; border-collapse: collapse;
+}
+.standings-table th {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--paper); background: var(--ink);
+  padding: .7rem 1.2rem;
+  text-align: left;
+}
+.standings-table th:not(:nth-child(2)) { text-align: center; }
+.standings-table td {
+  padding: .85rem 1.2rem;
+  border-bottom: 1px solid var(--paper-dark);
+  font-size: .93rem;
+}
+.standings-table td:not(:nth-child(2)) { text-align: center; }
+.standings-table tr:last-child td { border-bottom: none; }
+.standings-table tr:nth-child(even) td { background: var(--paper); }
+.standings-table .pos-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem; color: var(--muted);
+}
+.standings-table .team-cell {
+  display: flex; align-items: center; gap: .6rem;
+}
+.team-swatch {
+  width: 4px; height: 28px; border-radius: 2px; flex-shrink: 0;
+}
+.standings-table .team-nm {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+  line-height: 1.1;
+}
+.standings-table .team-cap { font-size: 11px; color: var(--muted); }
+.wl-w { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: #2e7d32; }
+.wl-l { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--accent); }
+.seed-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 2px;
+}
+.seed-1 { background: #fff3cd; color: #7a5400; }
+.seed-2 { background: #d4edda; color: #155724; }
+.seed-3 { background: #dce8f5; color: #1a3a6b; }
+.seed-4 { background: var(--paper-dark); color: var(--muted); }
+.seed-5 { background: #f8d7da; color: #721c24; }
+
+/* ── BRACKET ──────────────────────────── */
+.bracket-wrap {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  padding: 2rem;
+  overflow-x: auto;
+}
+
+.bracket {
+  display: grid;
+  grid-template-columns: 220px 60px 220px 60px 220px;
+  grid-template-rows: repeat(7, 48px);
+  gap: 0;
+  min-width: 780px;
+  align-items: center;
+}
+
+/* bracket node */
+.b-node {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: .55rem .9rem;
+  display: flex; align-items: center; gap: .5rem;
+  height: 44px;
+}
+.b-node.winner {
+  background: var(--ink); border-color: var(--ink);
+}
+.b-node.bye {
+  background: transparent; border: 1px dashed var(--rule);
+  opacity: .5;
+}
+.b-node.tbd {
+  background: var(--paper-dark);
+  border: 1px dashed var(--rule);
+}
+.b-swatch { width: 4px; height: 22px; border-radius: 1px; flex-shrink: 0; }
+.b-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .95rem; font-weight: 700;
+  letter-spacing: .03em; text-transform: uppercase;
+  line-height: 1; flex: 1;
+}
+.b-node.winner .b-name { color: var(--paper); }
+.b-node.loser .b-name { opacity: .35; }
+.b-seed {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); flex-shrink: 0;
+}
+.b-node.winner .b-seed { color: rgba(245,241,232,.4); }
+.b-prob {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.b-node.winner .b-prob { color: var(--gold); }
+.b-node.loser  .b-prob { opacity: .3; }
+
+/* connector arrows */
+.b-conn {
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  letter-spacing: .1em; text-transform: uppercase;
+  position: relative;
+}
+.b-conn::before {
+  content: '';
+  position: absolute;
+  width: 100%; height: 1px;
+  background: var(--rule);
+}
+.b-conn span { background: var(--paper); padding: 0 6px; position: relative; z-index: 1; font-size: 9px; }
+
+/* stage labels */
+.b-stage-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted); grid-column: span 1;
+  text-align: center; padding-bottom: .4rem;
+  border-bottom: 1px solid var(--rule);
+  align-self: end;
+}
+
+/* champion card */
+.champion-card {
+  background: var(--ink);
+  border: 2px solid var(--gold);
+  padding: 1.8rem 2rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+.champ-eye {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .25em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: .5rem;
+}
+.champ-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.5rem; line-height: 1;
+  color: var(--paper);
+}
+.champ-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 300;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(245,241,232,.4); margin-top: .4rem;
+}
+.champ-bar {
+  width: 50px; height: 3px;
+  background: var(--gold);
+  margin: 1rem auto;
+}
+
+/* bracket visual layout (hand-placed with grid) */
+.bracket-layout {
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+  min-width: 820px;
+  overflow-x: auto;
+}
+.bracket-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.bracket-col.col-matches { width: 220px; }
+.bracket-col.col-conn    { width: 50px; position: relative; }
+.bracket-col.col-final   { width: 220px; }
+
+.b-match {
+  margin-bottom: 1.2rem;
+}
+.b-match-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: .4rem;
+  padding-left: 2px;
+}
+.b-match-team {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .55rem .8rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  height: 42px;
+}
+.b-match-team + .b-match-team { border-top: none; }
+.b-match-team.winner-team {
+  background: var(--ink); border-color: var(--ink);
+}
+.b-match-team.loser-team { opacity: .45; }
+.bt-swatch { width: 4px; height: 18px; border-radius: 1px; flex-shrink: 0; }
+.bt-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .9rem; font-weight: 700;
+  letter-spacing: .03em; text-transform: uppercase;
+  flex: 1; line-height: 1;
+}
+.winner-team .bt-name { color: var(--paper); }
+.bt-seed {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; letter-spacing: .1em;
+  color: var(--muted); flex-shrink: 0;
+}
+.winner-team .bt-seed { color: rgba(245,241,232,.4); }
+.bt-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem; flex-shrink: 0;
+}
+.winner-team .bt-pct { color: var(--gold); }
+.loser-team .bt-pct { opacity: .3; }
+
+/* bracket columns layout */
+.bracket-outer {
+  display: grid;
+  grid-template-columns: 220px 80px 220px 80px 220px;
+  gap: 0;
+  align-items: center;
+  min-width: 820px;
+}
+.bc-stage {
+  display: flex; flex-direction: column;
+  gap: 1rem;
+}
+.bc-connector {
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  gap: 0;
+  height: 100%;
+}
+.conn-line-v {
+  width: 1px; flex: 1;
+  background: var(--rule);
+}
+.conn-line-h {
+  height: 1px; width: 100%;
+  background: var(--rule);
+}
+.conn-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted); writing-mode: vertical-rl;
+  text-orientation: mixed; transform: rotate(180deg);
+  padding: 6px 0;
+  background: var(--white);
+}
+
+/* bracket stage heading */
+.bs-head {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: .8rem;
+}
+
+/* ── FINAL STANDINGS ──────────────────── */
+.final-standings {
+  display: flex; flex-direction: column; gap: .5rem;
+}
+.fs-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px;
+  align-items: center; gap: 1rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  padding: .9rem 1.4rem;
+  position: relative; overflow: hidden;
+}
+.fs-row::before {
+  content: ''; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 5px;
+}
+.fs-row.p1::before { background: var(--gold); }
+.fs-row.p2::before { background: #aaa; }
+.fs-row.p3::before { background: #c87941; }
+.fs-row.p4::before { background: var(--paper-dark); }
+.fs-row.p5::before { background: var(--paper-dark); }
+.fs-pos {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem; line-height: 1;
+  color: var(--paper-dark);
+  text-align: center;
+}
+.fs-row.p1 .fs-pos { color: var(--gold); }
+.fs-row.p2 .fs-pos { color: #aaa; }
+.fs-row.p3 .fs-pos { color: #c87941; }
+.fs-info {}
+.fs-team {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.fs-cap { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 1px; }
+.fs-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 2px;
+  text-align: center;
+}
+.fs-row.p1 .fs-tag { background: #fff3cd; color: #7a5400; }
+.fs-row.p2 .fs-tag { background: #d8d8d8; color: #444; }
+.fs-row.p3 .fs-tag { background: #f5dbc8; color: #7a3200; }
+.fs-row.p4 .fs-tag { background: var(--paper-dark); color: var(--muted); }
+.fs-row.p5 .fs-tag { background: #f8d7da; color: #721c24; }
+
+/* ── FOOTER ───────────────────────────── */
+.site-footer {
+  background: var(--ink);
+  color: rgba(245,241,232,.3);
+  text-align: center; padding: 1.4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+}
+
+/* animations */
+.pr-row, .match-card, .standings-wrap, .fs-row {
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.pr-row:nth-child(1) { animation-delay: .05s; }
+.pr-row:nth-child(2) { animation-delay: .10s; }
+.pr-row:nth-child(3) { animation-delay: .15s; }
+.pr-row:nth-child(4) { animation-delay: .20s; }
+.pr-row:nth-child(5) { animation-delay: .25s; }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="mh-eye">Buckeye Gaming Collective &nbsp;·&nbsp; Summer 2026</div>
+  <h1 class="mh-title">Power Rankings<br><em>&amp; Tournament Projections</em></h1>
+  <div class="mh-rule"></div>
+  <div class="mh-sub">Pre-Tournament Analysis &nbsp;·&nbsp; Round Robin + Bracket Stage &nbsp;·&nbsp; BGC Community Draft</div>
+</div>
+
+<div class="page">
+
+  <!-- ══════════════════════
+       POWER RANKINGS
+  ══════════════════════ -->
+  <section>
+    <div class="section-head">
+      <h2>Power Rankings</h2>
+      <span class="sh-sub">Pre-Tournament</span>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="power-list">
+
+      <!-- #1 UNCS -->
+      <div class="pr-row r1">
+        <div class="pr-rank">1</div>
+        <div class="pr-info">
+          <div class="pr-name" style="color:var(--uncs)">Uncs</div>
+          <div class="pr-captain">Captain: <strong>Grifdy</strong> &nbsp;·&nbsp; Draft Grade A+</div>
+        </div>
+        <div class="pr-bar-wrap">
+          <div class="pr-bar-label"><span>Power Score</span><span style="color:var(--ink);font-weight:700">88</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:88%;background:var(--uncs)"></div></div>
+          <div class="pr-bar-label" style="margin-top:4px"><span>True Value</span><span style="color:var(--ink);font-weight:700">$280k</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:100%;background:var(--uncs);opacity:.45"></div></div>
+        </div>
+        <div class="pr-score">
+          <span class="pr-score-val" style="color:var(--uncs)">88</span>
+          <span class="pr-score-lbl">Power</span>
+        </div>
+        <div class="pr-badges">
+          <span class="badge badge-fav">Heavy Favorite</span>
+          <span class="badge badge-fav">Tournament Pick</span>
+        </div>
+        <div class="pr-analysis">
+          The Uncs are the clear #1 team in the field and it isn't particularly close. Grifdy's roster construction was the best in the draft by a wide margin — a former professional player (Lava) at the FDPS slot, a GM-caliber captain on tank, a Masters-level second DPS in Divina, and a high-Diamond support duo in HomieBaba and jisf. The $103,000 surplus between what was paid and true value speaks to the efficiency. The one question mark is whether Lava's transition from tank to DPS role fully materializes under match pressure — but elite mechanics travel, and at Champion 4 he's operating at a tier above anyone else in this tournament.
+        </div>
+      </div>
+
+      <!-- #2 GLP-1 GRINDERS -->
+      <div class="pr-row r2">
+        <div class="pr-rank">2</div>
+        <div class="pr-info">
+          <div class="pr-name" style="color:var(--grind)">GLP-1 Grinders</div>
+          <div class="pr-captain">Captain: <strong>Aussie</strong> &nbsp;·&nbsp; Draft Grade B+</div>
+        </div>
+        <div class="pr-bar-wrap">
+          <div class="pr-bar-label"><span>Power Score</span><span style="color:var(--ink);font-weight:700">74</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:74%;background:var(--grind)"></div></div>
+          <div class="pr-bar-label" style="margin-top:4px"><span>True Value</span><span style="color:var(--ink);font-weight:700">$227k</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:81%;background:var(--grind);opacity:.45"></div></div>
+        </div>
+        <div class="pr-score">
+          <span class="pr-score-val" style="color:var(--grind)">74</span>
+          <span class="pr-score-lbl">Power</span>
+        </div>
+        <div class="pr-badges">
+          <span class="badge badge-cont">Contender</span>
+          <span class="badge badge-cont">Finals Threat</span>
+        </div>
+        <div class="pr-analysis">
+          The Grinders are the only team in the field that can genuinely challenge the Uncs on any given map. RET at Champion 4 is the best support in the tournament by rank, and the toeinfection-RET support duo at 4000 + Champion 4 SR is a matchup nightmare for every roster in this field. Aussie's high Masters tank provides strong shot-calling, and the post-draft trade acquiring NotGunner adds flex depth that the original roster lacked. The gap to #1 is real — Grifdy's DPS line outclasses them — but the Grinders' support advantage is potent enough to steal a series.
+        </div>
+      </div>
+
+      <!-- #3 FORSCYTHIES -->
+      <div class="pr-row r3">
+        <div class="pr-rank">3</div>
+        <div class="pr-info">
+          <div class="pr-name" style="color:var(--forsc)">Forscythies</div>
+          <div class="pr-captain">Captain: <strong>Forscythe</strong> &nbsp;·&nbsp; Draft Grade B</div>
+        </div>
+        <div class="pr-bar-wrap">
+          <div class="pr-bar-label"><span>Power Score</span><span style="color:var(--ink);font-weight:700">65</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:65%;background:var(--forsc)"></div></div>
+          <div class="pr-bar-label" style="margin-top:4px"><span>True Value</span><span style="color:var(--ink);font-weight:700">$186k</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:66%;background:var(--forsc);opacity:.45"></div></div>
+        </div>
+        <div class="pr-score">
+          <span class="pr-score-val" style="color:var(--forsc)">65</span>
+          <span class="pr-score-lbl">Power</span>
+        </div>
+        <div class="pr-badges">
+          <span class="badge badge-cont">Contender</span>
+          <span class="badge badge-mid">Semi Threat</span>
+        </div>
+        <div class="pr-analysis">
+          The Forscythies are the most balanced team in the field — lexx's GM Lucio anchors one of the better support profiles in the tournament, starryflower provides a reliable high-Diamond tank, and the GoldenGear/NinerActual DPS pairing is Diamond-to-low-Masters caliber. The issue is the Forscythies have no transcendent talent to carry a map when it goes sideways. They beat the teams below them cleanly and push the teams above them competitively — a profile that almost always results in a strong group stage and a semifinal exit.
+        </div>
+      </div>
+
+      <!-- #4 PRATTY'S PALS -->
+      <div class="pr-row r4">
+        <div class="pr-rank">4</div>
+        <div class="pr-info">
+          <div class="pr-name" style="color:var(--pals)">Pratty's Pals</div>
+          <div class="pr-captain">Captain: <strong>Pratty</strong> &nbsp;·&nbsp; Draft Grade B−</div>
+        </div>
+        <div class="pr-bar-wrap">
+          <div class="pr-bar-label"><span>Power Score</span><span style="color:var(--ink);font-weight:700">58</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:58%;background:var(--pals)"></div></div>
+          <div class="pr-bar-label" style="margin-top:4px"><span>True Value</span><span style="color:var(--ink);font-weight:700">$178k</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:64%;background:var(--pals);opacity:.45"></div></div>
+        </div>
+        <div class="pr-score">
+          <span class="pr-score-val" style="color:var(--pals)">58</span>
+          <span class="pr-score-lbl">Power</span>
+        </div>
+        <div class="pr-badges">
+          <span class="badge badge-mid">Sleeper</span>
+          <span class="badge badge-mid">Mafia-Dep.</span>
+        </div>
+        <div class="pr-analysis">
+          Pratty's Pals are the most boom-or-bust team in the field. Mafia's GM Pharah/Tracer/Echo profile is a genuine x-factor — a player who can outright win maps singlehandedly against Diamond-tier rosters. If Crazerio performs at his corrected Masters level and Mafia is locked in, this team can knock anyone out on a good day. The risk is that the support depth behind Th0rnt0ns is thin, and if Mafia has an off game there isn't a secondary carry to pick up the slack. Ranked 4th but with the widest range of outcomes in the field.
+        </div>
+      </div>
+
+      <!-- #5 TERABYTE TITANS -->
+      <div class="pr-row r5">
+        <div class="pr-rank">5</div>
+        <div class="pr-info">
+          <div class="pr-name" style="color:var(--titans)">Terabyte Titans</div>
+          <div class="pr-captain">Captain: <strong>Tera</strong> &nbsp;·&nbsp; Draft Grade D+</div>
+        </div>
+        <div class="pr-bar-wrap">
+          <div class="pr-bar-label"><span>Power Score</span><span style="color:var(--ink);font-weight:700">38</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:38%;background:var(--titans)"></div></div>
+          <div class="pr-bar-label" style="margin-top:4px"><span>True Value</span><span style="color:var(--ink);font-weight:700">$126k</span></div>
+          <div class="pr-bar-track"><div class="pr-bar-fill" style="width:45%;background:var(--titans);opacity:.45"></div></div>
+        </div>
+        <div class="pr-score">
+          <span class="pr-score-val" style="color:var(--titans)">38</span>
+          <span class="pr-score-lbl">Power</span>
+        </div>
+        <div class="pr-badges">
+          <span class="badge badge-low">Underdog</span>
+          <span class="badge badge-low">Aurum-Dep.</span>
+        </div>
+        <div class="pr-analysis">
+          The Titans enter the tournament with the lowest power score in the field by a significant margin — a direct result of the most inefficient draft in the tournament. Aurum is a legitimate GM-level carry (Kiriko 4214, Emre 4034) and the post-draft trade landing jj183 provides some DPS depth. But no carry in a five-player game can compensate for a Bronze-tier and an unranked support soaking up $73,000 in combined salary. The Titans will be competitive in maps where Aurum takes over completely; they will struggle badly in any map that requires coordinated support play. Projected last in the group stage.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════
+       ROUND ROBIN
+  ══════════════════════ -->
+  <section>
+    <div class="section-head">
+      <h2>Round Robin Stage</h2>
+      <span class="sh-sub">All 10 Matches · Projected Results</span>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="rr-grid">
+
+      <!-- Match 1 -->
+      <div class="match-card">
+        <div class="match-header">Match 1 &nbsp;·&nbsp; Top of Bracket</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--uncs)">Uncs</div>
+              <div class="match-team-cap">Grifdy · Tank</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--grind)">GLP-1 Grinders</div>
+              <div class="match-team-cap">Aussie · Tank</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:54%;background:var(--uncs)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--uncs)">54% Uncs</span>
+            <span>46% Grinders</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            The closest match of the round robin. Grifdy's DPS line is the difference-maker — Lava and Divina should outpace seouless and NotGunner in direct output. But RET and toeinfection's support duo can extend the Grinders' tank and buy rounds. Expect the Uncs to take this in a competitive series. The Grinders' best chance is a strong lexx performance to out-sustain Grifdy's aggressive dive.
+          </div>
+          <div class="match-result" style="background:#D4537E22;color:var(--uncs)">Uncs Win</div>
+        </div>
+      </div>
+
+      <!-- Match 2 -->
+      <div class="match-card">
+        <div class="match-header">Match 2</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--uncs)">Uncs</div>
+              <div class="match-team-cap">Grifdy · Tank</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--forsc)">Forscythies</div>
+              <div class="match-team-cap">Forscythe · FS</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:58%;background:var(--uncs)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--uncs)">58% Uncs</span>
+            <span>42% Forscythies</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            lexx vs HomieBaba is the key support matchup — both high-tier Lucio players, but lexx's 4216 SR edges it. The Uncs' DPS advantage is decisive here; neither GoldenGear nor NinerActual can consistently match Lava and Divina at full strength. Forscythies steal a map on a good starryflower game but can't sustain it across a series.
+          </div>
+          <div class="match-result" style="background:#D4537E22;color:var(--uncs)">Uncs Win</div>
+        </div>
+      </div>
+
+      <!-- Match 3 -->
+      <div class="match-card">
+        <div class="match-header">Match 3</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--uncs)">Uncs</div>
+              <div class="match-team-cap">Grifdy · Tank</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--pals)">Pratty's Pals</div>
+              <div class="match-team-cap">Pratty · FS</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:60%;background:var(--uncs)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--uncs)">60% Uncs</span>
+            <span>40% Pals</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            Mafia vs Lava is the headline. Both are GM-tier DPS players with elite hero pools. Mafia's Pharah can be a genuine problem for Grifdy's dive composition. But Crazerio and Grifdy's tank matchup likely favors Grifdy, and the Pals' support depth behind Th0rnt0ns gets exposed in longer fights. A fun series; Mafia keeps it close but the Uncs ultimately prevail.
+          </div>
+          <div class="match-result" style="background:#D4537E22;color:var(--uncs)">Uncs Win</div>
+        </div>
+      </div>
+
+      <!-- Match 4 -->
+      <div class="match-card">
+        <div class="match-header">Match 4</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--uncs)">Uncs</div>
+              <div class="match-team-cap">Grifdy · Tank</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--titans)">Terabyte Titans</div>
+              <div class="match-team-cap">Tera · Tank</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:70%;background:var(--uncs)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--uncs)">70% Uncs</span>
+            <span>30% Titans</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            Aurum will put up numbers — that's almost guaranteed. But the Titans' support line cannot sustain a prolonged series against the Uncs' full roster depth. The moment HomieBaba and Grifdy get coordination going, the Titans' frontline collapses. Lava vs Aurum is a must-watch individual matchup, but team play carries the day.
+          </div>
+          <div class="match-result" style="background:#D4537E22;color:var(--uncs)">Uncs Win</div>
+        </div>
+      </div>
+
+      <!-- Match 5 -->
+      <div class="match-card">
+        <div class="match-header">Match 5 &nbsp;·&nbsp; Key Seeding Match</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--grind)">GLP-1 Grinders</div>
+              <div class="match-team-cap">Aussie · Tank</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--forsc)">Forscythies</div>
+              <div class="match-team-cap">Forscythe · FS</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:53%;background:var(--grind)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--grind)">53% Grinders</span>
+            <span>47% Forscythies</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            The tightest match of the tournament after the Uncs-Grinders clash. lexx vs RET and toeinfection is a generational support matchup for this level of play. lexx's 4216 GM Lucio is legitimate, but the Grinders have two elite supports to lexx's one. Aussie's dive-first tank composition should run over starryflower's more methodical Reinhardt style. Expect the closest series of the round robin — likely decided by a single map.
+          </div>
+          <div class="match-result" style="background:#1D9E7522;color:var(--grind)">Grinders Win</div>
+        </div>
+      </div>
+
+      <!-- Match 6 -->
+      <div class="match-card">
+        <div class="match-header">Match 6</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--grind)">GLP-1 Grinders</div>
+              <div class="match-team-cap">Aussie · Tank</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--pals)">Pratty's Pals</div>
+              <div class="match-team-cap">Pratty · FS</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:56%;background:var(--grind)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--grind)">56% Grinders</span>
+            <span>44% Pals</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            Mafia's Pharah is a legitimate counter to Aussie's typical Winston dive — you can't just hard-dive through a Pharah played at 4271 SR. But RET at Champion 4 can shut down Pharah uptime in ways Diamond-tier supports cannot. If the Grinders draft appropriately to counter Pharah, they win comfortably. If Mafia gets space to play, this gets very interesting.
+          </div>
+          <div class="match-result" style="background:#1D9E7522;color:var(--grind)">Grinders Win</div>
+        </div>
+      </div>
+
+      <!-- Match 7 -->
+      <div class="match-card">
+        <div class="match-header">Match 7</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--grind)">GLP-1 Grinders</div>
+              <div class="match-team-cap">Aussie · Tank</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--titans)">Terabyte Titans</div>
+              <div class="match-team-cap">Tera · Tank</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:66%;background:var(--grind)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--grind)">66% Grinders</span>
+            <span>34% Titans</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            Aurum vs seouless is the DPS matchup — Aurum has the edge on raw rank but seouless brings more flexibility. The decisive factor is support: RET and toeinfection vs the Titans' Bronze-and-unranked support duo isn't a contest. The Grinders should win this match convincingly once the support advantage becomes apparent in engagements.
+          </div>
+          <div class="match-result" style="background:#1D9E7522;color:var(--grind)">Grinders Win</div>
+        </div>
+      </div>
+
+      <!-- Match 8 -->
+      <div class="match-card">
+        <div class="match-header">Match 8</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--forsc)">Forscythies</div>
+              <div class="match-team-cap">Forscythe · FS</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--pals)">Pratty's Pals</div>
+              <div class="match-team-cap">Pratty · FS</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:53%;background:var(--forsc)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--forsc)">53% Forscythies</span>
+            <span>47% Pals</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            A genuine coin-flip. Mafia's Pharah is the single biggest individual threat in this matchup; lexx's Lucio mobility can frustrate it but can't shut it down alone. Forscythies' more balanced construction edges it — their support spine is more reliable than the Pals', and starryflower's tank pool is arguably a better stylistic counter to Crazerio. By a thin margin, Forscythies take it.
+          </div>
+          <div class="match-result" style="background:#378ADD22;color:var(--forsc)">Forscythies Win</div>
+        </div>
+      </div>
+
+      <!-- Match 9 -->
+      <div class="match-card">
+        <div class="match-header">Match 9</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--forsc)">Forscythies</div>
+              <div class="match-team-cap">Forscythe · FS</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--titans)">Terabyte Titans</div>
+              <div class="match-team-cap">Tera · Tank</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:63%;background:var(--forsc)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--forsc)">63% Forscythies</span>
+            <span>37% Titans</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            Aurum's ceiling exceeds anything on the Forscythies' DPS line, which keeps this from being a blowout. But lexx vs the Titans' support duo is an enormous mismatch, and starryflower's tank consistency should outlast Tera's setup in most maps. jj183 arriving via trade helps the Titans' DPS depth but doesn't fix the support problem.
+          </div>
+          <div class="match-result" style="background:#378ADD22;color:var(--forsc)">Forscythies Win</div>
+        </div>
+      </div>
+
+      <!-- Match 10 -->
+      <div class="match-card">
+        <div class="match-header">Match 10 &nbsp;·&nbsp; Basement Battle</div>
+        <div class="match-body">
+          <div class="match-teams">
+            <div class="match-team winner">
+              <div class="match-team-name" style="color:var(--pals)">Pratty's Pals</div>
+              <div class="match-team-cap">Pratty · FS</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="match-team loser right">
+              <div class="match-team-name" style="color:var(--titans)">Terabyte Titans</div>
+              <div class="match-team-cap">Tera · Tank</div>
+            </div>
+          </div>
+          <div class="match-prob-bar">
+            <div class="match-prob-fill" style="width:60%;background:var(--pals)"></div>
+          </div>
+          <div class="match-prob-labels">
+            <span class="win-prob" style="color:var(--pals)">60% Pals</span>
+            <span>40% Titans</span>
+          </div>
+          <div style="margin-top:.7rem;font-size:.83rem;line-height:1.6;color:#3a3530">
+            The match with the most individual variance in the field. Aurum vs Mafia is a GM-vs-GM DPS matchup that either player could dominate. But the Pals' support spine — Th0rnt0ns and Pratty — is objectively more reliable than the Titans' jhunli and Mmmmmyuh pairing. Crazerio's Masters tank should control the neutral against Tera's setup. Pratty's Pals take it in a match that probably goes to the final map.
+          </div>
+          <div class="match-result" style="background:#D85A3022;color:var(--pals)">Pals Win</div>
+        </div>
+      </div>
+
+    </div><!-- end rr-grid -->
+
+
+    <!-- GROUP STAGE STANDINGS -->
+    <div style="margin-top:2rem">
+      <div class="section-head" style="margin-bottom:1rem">
+        <h2 style="font-size:1.8rem">Group Stage Standings</h2>
+        <span class="sh-sub">Final</span>
+        <div class="section-rule"></div>
+      </div>
+      <div class="standings-wrap">
+        <table class="standings-table">
+          <thead>
+            <tr>
+              <th style="width:48px">#</th>
+              <th>Team</th>
+              <th>W</th>
+              <th>L</th>
+              <th>W–L%</th>
+              <th>Power</th>
+              <th>Seed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pos-num">1</span></td>
+              <td>
+                <div class="team-cell">
+                  <div class="team-swatch" style="background:var(--uncs)"></div>
+                  <div>
+                    <div class="team-nm">Uncs</div>
+                    <div class="team-cap">Grifdy · A+ Draft</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="wl-w">4</span></td>
+              <td><span class="wl-l">0</span></td>
+              <td>1.000</td>
+              <td>88</td>
+              <td><span class="seed-badge seed-1">1st · Bye</span></td>
+            </tr>
+            <tr>
+              <td><span class="pos-num">2</span></td>
+              <td>
+                <div class="team-cell">
+                  <div class="team-swatch" style="background:var(--grind)"></div>
+                  <div>
+                    <div class="team-nm">GLP-1 Grinders</div>
+                    <div class="team-cap">Aussie · B+ Draft</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="wl-w">3</span></td>
+              <td><span class="wl-l">1</span></td>
+              <td>.750</td>
+              <td>74</td>
+              <td><span class="seed-badge seed-2">2nd · SF</span></td>
+            </tr>
+            <tr>
+              <td><span class="pos-num">3</span></td>
+              <td>
+                <div class="team-cell">
+                  <div class="team-swatch" style="background:var(--forsc)"></div>
+                  <div>
+                    <div class="team-nm">Forscythies</div>
+                    <div class="team-cap">Forscythe · B Draft</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="wl-w">2</span></td>
+              <td><span class="wl-l">2</span></td>
+              <td>.500</td>
+              <td>65</td>
+              <td><span class="seed-badge seed-3">3rd · SF</span></td>
+            </tr>
+            <tr>
+              <td><span class="pos-num">4</span></td>
+              <td>
+                <div class="team-cell">
+                  <div class="team-swatch" style="background:var(--pals)"></div>
+                  <div>
+                    <div class="team-nm">Pratty's Pals</div>
+                    <div class="team-cap">Pratty · B− Draft</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="wl-w">1</span></td>
+              <td><span class="wl-l">3</span></td>
+              <td>.250</td>
+              <td>58</td>
+              <td><span class="seed-badge seed-4">4th · Elim.</span></td>
+            </tr>
+            <tr>
+              <td><span class="pos-num">5</span></td>
+              <td>
+                <div class="team-cell">
+                  <div class="team-swatch" style="background:var(--titans)"></div>
+                  <div>
+                    <div class="team-nm">Terabyte Titans</div>
+                    <div class="team-cap">Tera · D+ Draft</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="wl-w">0</span></td>
+              <td><span class="wl-l">4</span></td>
+              <td>.000</td>
+              <td>38</td>
+              <td><span class="seed-badge seed-5">5th · Elim.</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════
+       BRACKET STAGE
+  ══════════════════════ -->
+  <section>
+    <div class="section-head">
+      <h2>Bracket Stage</h2>
+      <span class="sh-sub">Elimination · Projected Results</span>
+      <div class="section-rule"></div>
+    </div>
+
+    <div style="overflow-x:auto">
+      <div style="min-width:820px;display:grid;grid-template-columns:220px 70px 220px 70px 220px;gap:0;align-items:center;background:var(--white);border:1px solid var(--rule);padding:2rem 1.5rem">
+
+        <!-- STAGE LABELS ROW -->
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:.5rem;margin-bottom:1.2rem">
+          Elimination Round<br><span style="font-weight:300;font-size:9px">4th Seed vs 5th Seed</span>
+        </div>
+        <div></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:.5rem;margin-bottom:1.2rem">
+          Semifinal<br><span style="font-weight:300;font-size:9px">2nd Seed vs 3rd Seed</span>
+        </div>
+        <div></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:.5rem;margin-bottom:1.2rem">
+          Grand Final<br><span style="font-weight:300;font-size:9px">1st Seed vs SF Winner</span>
+        </div>
+
+        <!-- ELIMINATION MATCH -->
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Elimination Game</div>
+          <div class="b-match-team" style="border-radius:2px 2px 0 0">
+            <div class="bt-swatch" style="background:var(--pals)"></div>
+            <div class="bt-name">Pratty's Pals</div>
+            <div class="bt-seed">4th</div>
+            <div class="bt-pct" style="color:var(--pals)">60%</div>
+          </div>
+          <div class="b-match-team winner-team" style="border-radius:0 0 2px 2px">
+            <div class="bt-swatch" style="background:var(--pals)"></div>
+            <div class="bt-name">Pratty's Pals</div>
+            <div class="bt-seed" style="color:rgba(245,241,232,.4)">WIN</div>
+            <div class="bt-pct" style="color:var(--gold)">✓</div>
+          </div>
+          <div style="height:1px;background:var(--rule);margin:.4rem 0"></div>
+          <div class="b-match-team loser-team">
+            <div class="bt-swatch" style="background:var(--titans)"></div>
+            <div class="bt-name">Terabyte Titans</div>
+            <div class="bt-seed">5th</div>
+            <div class="bt-pct" style="color:var(--titans)">40%</div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--accent);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem">Titans Eliminated</div>
+          <div style="margin-top:.6rem;font-size:.78rem;line-height:1.6;color:#3a3530">Mafia's individual ceiling ultimately tips the balance. The Pals' support spine is more reliable than the Titans', and Crazerio's Masters tank anchors the frontline more consistently. Aurum goes nuclear but it's not enough to compensate for the support mismatch. Pals advance in a gritty series that likely goes the distance.</div>
+        </div>
+
+        <!-- ELIM CONNECTOR -->
+        <div style="display:flex;flex-direction:column;align-items:center;height:120px;padding-top:30px">
+          <div style="width:1px;flex:1;background:var(--rule)"></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:8px;color:var(--muted);padding:3px 0;white-space:nowrap;transform:rotate(0)">→</div>
+          <div style="width:1px;flex:1;background:transparent"></div>
+        </div>
+
+        <!-- SEMIFINAL MATCH -->
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Semifinal</div>
+          <div class="b-match-team winner-team" style="border-radius:2px 2px 0 0">
+            <div class="bt-swatch" style="background:var(--grind)"></div>
+            <div class="bt-name">GLP-1 Grinders</div>
+            <div class="bt-seed" style="color:rgba(245,241,232,.4)">2nd</div>
+            <div class="bt-pct" style="color:var(--gold)">✓</div>
+          </div>
+          <div class="b-match-team loser-team" style="border-radius:0 0 2px 2px">
+            <div class="bt-swatch" style="background:var(--forsc)"></div>
+            <div class="bt-name">Forscythies</div>
+            <div class="bt-seed">3rd</div>
+            <div class="bt-pct" style="color:var(--forsc)">47%</div>
+          </div>
+          <div style="height:1px;background:var(--rule);margin:.4rem 0"></div>
+          <div class="b-match-team" style="background:var(--paper-dark);opacity:.5">
+            <div class="bt-swatch" style="background:var(--pals)"></div>
+            <div class="bt-name">Pratty's Pals</div>
+            <div class="bt-seed">Elim. Winner</div>
+            <div class="bt-pct" style="color:var(--muted)">—</div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--grind);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem">Grinders Advance</div>
+          <div style="margin-top:.6rem;font-size:.78rem;line-height:1.6;color:#3a3530">The Grinders' support duo of RET and toeinfection creates too many problems for the Forscythies to solve. lexx is outstanding but he's one player against two Champion/high-Masters supports. Grinders take this in the semifinal's showcase match. The Elim. winner slot shown (Pals) does not play in this game.</div>
+        </div>
+
+        <!-- SF CONNECTOR -->
+        <div style="display:flex;flex-direction:column;align-items:center;height:120px;padding-top:30px">
+          <div style="width:1px;flex:1;background:var(--rule)"></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:8px;color:var(--muted);padding:3px 0">→</div>
+          <div style="width:1px;flex:1;background:transparent"></div>
+        </div>
+
+        <!-- GRAND FINAL -->
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Grand Final</div>
+          <div class="b-match-team winner-team" style="border-radius:2px 2px 0 0;border:1px solid var(--gold)">
+            <div class="bt-swatch" style="background:var(--uncs)"></div>
+            <div class="bt-name">Uncs</div>
+            <div class="bt-seed" style="color:var(--gold)">CHAMP</div>
+            <div class="bt-pct" style="color:var(--gold)">54%</div>
+          </div>
+          <div class="b-match-team loser-team" style="border-radius:0 0 2px 2px">
+            <div class="bt-swatch" style="background:var(--grind)"></div>
+            <div class="bt-name">GLP-1 Grinders</div>
+            <div class="bt-seed">Runner-Up</div>
+            <div class="bt-pct" style="color:var(--grind)">46%</div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--gold);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem">Uncs — Champions</div>
+          <div style="margin-top:.6rem;font-size:.78rem;line-height:1.6;color:#3a3530">A rematch of the round robin's closest match. The Grinders will be battle-tested and the Uncs will be coming off a bye — momentum vs freshness. The difference is Lava. At Champion 4 with pro experience, his DPS output in a finals setting should exceed what seouless and NotGunner can match. Close. Contested. But the Uncs close it out.</div>
+        </div>
+
+      </div><!-- end bracket grid -->
+    </div>
+
+    <!-- Champion card -->
+    <div class="champion-card" style="margin-top:1.5rem">
+      <div class="champ-eye">BGC Community Draft Tournament · Summer 2026 · Projected Champion</div>
+      <div class="champ-name" style="color:var(--uncs)">The Uncs</div>
+      <div class="champ-bar" style="background:var(--uncs)"></div>
+      <div class="champ-sub">Captain: Grifdy &nbsp;·&nbsp; Draft Grade A+ &nbsp;·&nbsp; Power Score 88 &nbsp;·&nbsp; $103k True Value Surplus</div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════
+       PROJECTED FINAL STANDINGS
+  ══════════════════════ -->
+  <section>
+    <div class="section-head">
+      <h2>Projected Final Standings</h2>
+      <span class="sh-sub">Full Tournament</span>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="final-standings">
+
+      <div class="fs-row p1">
+        <div class="fs-pos">1</div>
+        <div class="fs-info">
+          <div class="fs-team" style="color:var(--uncs)">Uncs</div>
+          <div class="fs-cap">Captain: Grifdy &nbsp;·&nbsp; 4–0 Group Stage &nbsp;·&nbsp; Grand Final Win</div>
+        </div>
+        <span class="fs-tag">Champions</span>
+      </div>
+
+      <div class="fs-row p2">
+        <div class="fs-pos">2</div>
+        <div class="fs-info">
+          <div class="fs-team" style="color:var(--grind)">GLP-1 Grinders</div>
+          <div class="fs-cap">Captain: Aussie &nbsp;·&nbsp; 3–1 Group Stage &nbsp;·&nbsp; Grand Final Loss</div>
+        </div>
+        <span class="fs-tag">Runners-Up</span>
+      </div>
+
+      <div class="fs-row p3">
+        <div class="fs-pos">3</div>
+        <div class="fs-info">
+          <div class="fs-team" style="color:var(--forsc)">Forscythies</div>
+          <div class="fs-cap">Captain: Forscythe &nbsp;·&nbsp; 2–2 Group Stage &nbsp;·&nbsp; Semifinal Exit</div>
+        </div>
+        <span class="fs-tag">3rd Place</span>
+      </div>
+
+      <div class="fs-row p4">
+        <div class="fs-pos">4</div>
+        <div class="fs-info">
+          <div class="fs-team" style="color:var(--pals)">Pratty's Pals</div>
+          <div class="fs-cap">Captain: Pratty &nbsp;·&nbsp; 1–3 Group Stage &nbsp;·&nbsp; Elim. Round Win → Bracket Exit</div>
+        </div>
+        <span class="fs-tag">4th Place</span>
+      </div>
+
+      <div class="fs-row p5">
+        <div class="fs-pos">5</div>
+        <div class="fs-info">
+          <div class="fs-team" style="color:var(--titans)">Terabyte Titans</div>
+          <div class="fs-cap">Captain: Tera &nbsp;·&nbsp; 0–4 Group Stage &nbsp;·&nbsp; Elim. Round Exit</div>
+        </div>
+        <span class="fs-tag">5th Place</span>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- end .page -->
+
+<div class="site-footer">
+  BGC Community Draft Tournament &nbsp;·&nbsp; Summer 2026 &nbsp;·&nbsp; All projections based on normalized $1M draft pool, SR tiers, and roster construction analysis &nbsp;·&nbsp; Results are projected, not guaranteed
+</div>
+
+</body>
+</html>

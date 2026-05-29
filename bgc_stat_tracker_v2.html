@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGC · Map Stat Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;500;700;900&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0d;--paper:#f5f1e8;--paper-dark:#ece8dd;--rule:#c8c0aa;
+  --accent:#c8102e;--gold:#c49a2a;--muted:#6b6458;--white:#fff;
+  --green:#1b6e3a;--blue:#1a3a6b;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'Barlow',sans-serif;min-height:100vh;
+  background-image:repeating-linear-gradient(-45deg,transparent,transparent 22px,rgba(13,13,13,.013) 22px,rgba(13,13,13,.013) 44px)}
+
+/* ── MASTHEAD ─────────────────────────────── */
+.masthead{background:var(--ink);padding:2.4rem 1.5rem 2rem;text-align:center;
+  border-bottom:6px solid var(--accent);position:relative;overflow:hidden}
+.masthead::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(-45deg,transparent,transparent 16px,rgba(255,255,255,.018) 16px,rgba(255,255,255,.018) 32px)}
+.mh-eye{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;position:relative}
+.mh-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5.5rem);
+  line-height:.9;letter-spacing:.04em;color:var(--paper);position:relative}
+.mh-title em{color:var(--accent);font-style:normal}
+.mh-rule{width:50px;height:3px;background:var(--gold);margin:1rem auto .7rem;position:relative}
+.mh-sub{font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:300;
+  letter-spacing:.16em;text-transform:uppercase;color:rgba(245,241,232,.45);position:relative}
+
+/* ── TABS ─────────────────────────────────── */
+.tabbar{background:var(--ink);display:flex;justify-content:center;flex-wrap:wrap;
+  gap:.4rem;padding:0 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;padding:.5rem 1.3rem;
+  border:1px solid rgba(255,255,255,.18);color:rgba(245,241,232,.65);
+  background:transparent;border-radius:2px;cursor:pointer;transition:all .15s}
+.tab:hover{border-color:var(--accent);color:var(--paper)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+
+/* ── LAYOUT ───────────────────────────────── */
+.page{max-width:1120px;margin:0 auto;padding:2.2rem 1.2rem 5rem}
+.view{display:none}
+.view.active{display:block;animation:fadeUp .35s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section-head{display:flex;align-items:baseline;gap:.8rem;margin-bottom:1.4rem}
+.section-head h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;line-height:1}
+.sh-sub{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.section-rule{flex:1;height:1px;background:var(--rule)}
+
+/* ── PANELS ───────────────────────────────── */
+.panel{background:var(--white);border:1px solid var(--rule);padding:1.4rem;margin-bottom:1.2rem}
+.panel-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.panel-lbl::after{content:'';flex:1;height:1px;background:var(--rule)}
+
+/* ── FORM ELEMENTS ────────────────────────── */
+.form-row{display:grid;gap:.8rem;margin-bottom:.8rem}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-row.cols-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.form-row.cols-5{grid-template-columns:1fr 1fr 1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:.3rem}
+label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+input,select{font-family:'Barlow',sans-serif;font-size:.9rem;padding:.5rem .65rem;
+  border:1px solid var(--rule);background:var(--paper);color:var(--ink);
+  border-radius:2px;width:100%;transition:border-color .12s}
+input:focus,select:focus{outline:none;border-color:var(--accent);background:var(--white)}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{opacity:.5}
+
+.btn{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;padding:.6rem 1.3rem;
+  border:none;cursor:pointer;border-radius:2px;transition:all .15s}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:.35rem .8rem;font-size:10px}
+.btn-danger{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn-danger:hover{background:var(--accent);color:var(--paper)}
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;align-items:center}
+
+/* ── MAP TABS ─────────────────────────────── */
+.map-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.map-tab{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;padding:.4rem .9rem;
+  border:1px solid var(--rule);background:var(--paper-dark);color:var(--muted);
+  border-radius:2px;cursor:pointer;transition:all .15s}
+.map-tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.map-tab.add{border-style:dashed}
+.map-tab.add:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── STAT ENTRY TABLE ─────────────────────── */
+.entry-wrap{overflow-x:auto}
+.entry-table{border-collapse:collapse;width:100%;min-width:920px}
+.entry-table th{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--paper);
+  background:var(--ink);padding:.5rem .55rem;text-align:center;white-space:nowrap}
+.entry-table th:nth-child(1),.entry-table th:nth-child(2){text-align:left}
+.entry-table td{padding:.35rem .4rem;border-bottom:1px solid var(--paper-dark);text-align:center;vertical-align:middle}
+.entry-table td:nth-child(1){text-align:left;padding-left:.6rem}
+.entry-table td:nth-child(2){text-align:left}
+.entry-table tr:last-child td{border-bottom:none}
+.entry-table tr:hover td{background:rgba(245,241,232,.5)}
+.entry-table input[type=number]{width:62px;padding:.32rem .4rem;font-size:.82rem;text-align:center}
+.entry-table input.wide{width:88px}
+.tm-swatch{display:inline-block;width:4px;height:18px;border-radius:2px;vertical-align:middle;margin-right:6px;flex-shrink:0}
+.player-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;
+  letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center}
+.team-divider td{background:var(--paper-dark);font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);padding:.4rem .6rem;text-align:left!important}
+/* off-role row highlight */
+.entry-table tr.off-role-row td{background:rgba(196,154,42,.07)}
+
+/* ── RESULT BUTTONS ───────────────────────── */
+.result-toggle{display:flex;gap:.4rem;flex-wrap:wrap}
+.rtbtn{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;padding:.4rem .9rem;
+  border:1px solid var(--rule);background:var(--paper-dark);color:var(--muted);
+  border-radius:2px;cursor:pointer;transition:all .12s}
+.rtbtn.sel-a{background:var(--green);border-color:var(--green);color:#fff}
+.rtbtn.sel-b{background:var(--accent);border-color:var(--accent);color:#fff}
+.rtbtn.sel-d{background:var(--gold);border-color:var(--gold);color:#fff}
+
+/* ── SERIES SCORE DISPLAY ─────────────────── */
+.series-display{display:flex;align-items:center;gap:.6rem;margin-top:.8rem;
+  padding:.7rem 1rem;background:var(--paper-dark);border:1px solid var(--rule)}
+.series-score{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1}
+.series-score .w{color:var(--green)}
+.series-score .sep{color:var(--muted);margin:0 .3rem}
+.series-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.series-note{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--gold);font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;margin-left:auto}
+
+/* ── MATCH LOG CARDS ──────────────────────── */
+.game-card{background:var(--white);border:1px solid var(--rule);margin-bottom:1rem;overflow:hidden}
+.gc-head{display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.2rem;background:var(--paper);border-bottom:1px solid var(--rule);cursor:pointer;gap:.6rem}
+.gc-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:1.1rem;letter-spacing:.03em;text-transform:uppercase;line-height:1.2}
+.gc-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.gc-score-big{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.04em;flex-shrink:0}
+.gc-score-big .w{color:var(--green)}
+.gc-score-big .sep{color:var(--muted);margin:0 .2rem}
+.gc-chev{color:var(--muted);transition:transform .2s;font-size:1.2rem}
+.gc-head.open .gc-chev{transform:rotate(90deg)}
+.gc-body{display:none;padding:1.2rem}
+.gc-body.open{display:block}
+.map-section{margin-bottom:1.2rem}
+.map-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.map-label::after{content:'';flex:1;height:1px;background:var(--paper-dark);min-width:20px}
+.map-type-badge{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:2px;
+  background:var(--ink);color:var(--paper)}
+.map-result-badge{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:2px}
+.res-a{background:#d4edda;color:#155724}
+.res-b{background:#f8d7da;color:#721c24}
+.res-d{background:#fff3cd;color:#7a5400}
+
+.mini-stat{width:100%;border-collapse:collapse;font-size:.82rem}
+.mini-stat th{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--paper);
+  padding:.4rem .5rem;text-align:center;white-space:nowrap}
+.mini-stat th:nth-child(2){text-align:left}
+.mini-stat td{padding:.38rem .5rem;border-bottom:1px solid var(--paper-dark);text-align:center}
+.mini-stat td:nth-child(2){text-align:left;font-weight:600;font-family:'Barlow Condensed',sans-serif;
+  font-size:.9rem;letter-spacing:.02em;text-transform:uppercase}
+.mini-stat tr:last-child td{border-bottom:none}
+.mini-stat tr:nth-child(even) td{background:var(--paper)}
+.mini-stat tr.off-role-log td{background:rgba(196,154,42,.09)!important}
+
+/* ── DASHBOARD ─────────────────────────────── */
+.dash-filters{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.2rem;align-items:flex-end}
+.stat-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin-bottom:1.6rem}
+.tile{background:var(--white);border:1px solid var(--rule);padding:1rem 1.2rem;text-align:center;position:relative;overflow:hidden}
+.tile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.tile-val{font-family:'Bebas Neue',sans-serif;font-size:2.3rem;line-height:1;display:block}
+.tile-lbl{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-top:.2rem}
+.tile-sub{font-size:.75rem;color:var(--muted);margin-top:.1rem}
+.lead-wrap{background:var(--white);border:1px solid var(--rule);overflow-x:auto;margin-bottom:1.2rem}
+.lead-table{width:100%;border-collapse:collapse;min-width:820px}
+.lead-table th{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--paper);background:var(--ink);
+  padding:.6rem .7rem;text-align:center;cursor:pointer;white-space:nowrap;user-select:none}
+.lead-table th:nth-child(2){text-align:left}
+.lead-table th .arr{color:var(--gold);font-size:9px}
+.lead-table td{padding:.55rem .7rem;border-bottom:1px solid var(--paper-dark);font-size:.88rem;text-align:center}
+.lead-table td:nth-child(2){text-align:left}
+.lead-table tr:nth-child(even) td{background:var(--paper)}
+.lead-table tr:last-child td{border-bottom:none}
+.rk-num{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--paper-dark)}
+.rk-1{color:var(--gold)}.rk-2{color:#aaa}.rk-3{color:#c87941}
+.pname-cell{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.pname-cell .nm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;
+  letter-spacing:.03em;text-transform:uppercase}
+.stat-hi{color:var(--green);font-weight:600}
+.stat-lo{color:var(--accent);font-weight:600}
+
+/* ── xS PREDICTOR ─────────────────────────── */
+.xs-hero{background:var(--ink);padding:2rem;margin-bottom:1rem;display:grid;
+  grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem}
+.xs-team-block{display:flex;flex-direction:column;gap:.3rem}
+.xs-team-block.right{text-align:right;align-items:flex-end}
+.xs-team-name{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;line-height:1;letter-spacing:.04em;color:var(--paper)}
+.xs-score-pred{font-family:'Bebas Neue',sans-serif;font-size:5rem;line-height:1;
+  letter-spacing:.04em;text-align:center;color:var(--paper)}
+.xs-score-pred .xs-sep{color:rgba(245,241,232,.25);margin:0 .2rem}
+.xs-score-pred .xs-win{color:var(--gold)}
+.xs-win-pct{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:rgba(245,241,232,.45)}
+.xs-verdict{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;
+  font-weight:300;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(245,241,232,.4);margin-top:.3rem}
+
+.xs-factors{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7rem;margin-bottom:1rem}
+.xs-factor{background:var(--white);border:1px solid var(--rule);padding:1rem}
+.xs-factor-lbl{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;
+  display:flex;align-items:center;gap:.4rem}
+.xs-factor-lbl::after{content:'';flex:1;height:1px;background:var(--rule)}
+.xs-bar-wrap{display:flex;flex-direction:column;gap:6px}
+.xs-bar-row{display:flex;align-items:center;gap:.5rem}
+.xs-bar-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;width:60px;flex-shrink:0;color:var(--muted)}
+.xs-bar-track{flex:1;height:8px;background:var(--paper-dark);border-radius:4px;overflow:hidden;display:flex}
+.xs-bar-a{height:100%;border-radius:4px 0 0 4px;transition:width .4s ease}
+.xs-bar-b{height:100%;border-radius:0 4px 4px 0;transition:width .4s ease}
+.xs-bar-val{font-family:'Bebas Neue',sans-serif;font-size:.95rem;width:36px;text-align:right;flex-shrink:0}
+
+.xs-map-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:.7rem;margin-bottom:1rem}
+.xs-map-card{background:var(--white);border:1px solid var(--rule);padding:.9rem 1rem;position:relative;overflow:hidden}
+.xs-map-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.xs-map-num{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.xs-map-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.03em;
+  line-height:1;margin-bottom:.5rem}
+.xs-map-prob-bar{height:6px;background:var(--paper-dark);border-radius:3px;overflow:hidden;
+  display:flex;margin-bottom:.5rem}
+.xs-map-labels{display:flex;justify-content:space-between;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700}
+.xs-map-pred{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem;
+  padding:2px 8px;border-radius:2px;display:inline-block}
+
+.xs-h2h{background:var(--white);border:1px solid var(--rule);padding:1rem 1.2rem;margin-bottom:1rem}
+.xs-h2h-row{display:flex;justify-content:space-between;align-items:center;
+  font-family:'Barlow Condensed',sans-serif;gap:1rem;flex-wrap:wrap}
+.xs-h2h-stat{text-align:center}
+.xs-h2h-val{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;display:block}
+.xs-h2h-lbl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);display:block}
+
+.xs-method{font-size:.78rem;color:var(--muted);line-height:1.65;
+  border-top:1px solid var(--rule);padding-top:.8rem;margin-top:.2rem}
+.xs-method strong{color:var(--ink)}
+
+/* ── MISC ─────────────────────────────────── */
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted);border:1px dashed var(--rule);background:var(--white)}
+.empty .big{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--paper-dark);letter-spacing:.04em}
+.note{font-size:.79rem;color:var(--muted);line-height:1.6;margin-top:.5rem;font-style:italic}
+.loading-msg{text-align:center;padding:2rem;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:var(--paper);padding:.65rem 1.4rem;border-radius:3px;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  font-size:.82rem;opacity:0;transition:all .25s;z-index:999;border-left:3px solid var(--gold)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.footer{background:var(--ink);color:rgba(245,241,232,.3);text-align:center;padding:1.3rem;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+@media(max-width:640px){
+  .form-row.cols-2,.form-row.cols-3,.form-row.cols-4,.form-row.cols-5{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="mh-eye">Buckeye Gaming Collective · Summer 2026</div>
+  <h1 class="mh-title">Map Stat <em>Tracker</em></h1>
+  <div class="mh-rule"></div>
+  <div class="mh-sub">Per-Map Entry · Full OW2 Stats · Best of 5</div>
+</div>
+
+<div class="tabbar">
+  <button class="tab active" data-view="entry">＋ Log Maps</button>
+  <button class="tab" data-view="log">Match Log</button>
+  <button class="tab" data-view="dash">Dashboard</button>
+  <button class="tab" data-view="xs">xS Predictor</button>
+</div>
+
+<div class="page">
+
+  <!-- ══════ ENTRY ══════ -->
+  <div class="view active" id="view-entry">
+    <div class="section-head">
+      <h2>Log Maps</h2>
+      <span class="sh-sub">Per-Map · Full OW2 Stats · BO5</span>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-lbl">Match Info</div>
+      <div class="form-row cols-4">
+        <div class="field"><label>Team A</label><select id="teamA"></select></div>
+        <div class="field"><label>Team B</label><select id="teamB"></select></div>
+        <div class="field">
+          <label>Stage</label>
+          <select id="stage">
+            <option>Round Robin</option>
+            <option>Bracket Stage</option>
+            <option>Finals</option>
+          </select>
+        </div>
+        <div class="field"><label>Date</label><input type="date" id="gdate"></div>
+      </div>
+      <!-- live series score display -->
+      <div class="series-display" id="seriesDisplay">
+        <div>
+          <div class="series-lbl" id="seriesTeamA">Team A</div>
+          <div class="series-score"><span class="sep" id="seriesScoreA">0</span></div>
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--muted)">–</div>
+        <div>
+          <div class="series-lbl" id="seriesTeamB">Team B</div>
+          <div class="series-score"><span class="sep" id="seriesScoreB">0</span></div>
+        </div>
+        <div class="series-note" id="seriesStatus">Best of 5 · First to 3</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-lbl">Maps</div>
+      <div class="map-tabs" id="mapTabs"></div>
+      <div id="mapEditor"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" id="addMapBtn">＋ Add Map</button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveMatch">Save Match</button>
+      <button class="btn btn-ghost" id="clearForm">Clear All</button>
+    </div>
+  </div>
+
+  <!-- ══════ MATCH LOG ══════ -->
+  <div class="view" id="view-log">
+    <div class="section-head">
+      <h2>Match Log</h2>
+      <span class="sh-sub" id="logCount">0 Matches</span>
+      <div class="section-rule"></div>
+    </div>
+    <div id="logList"></div>
+  </div>
+
+  <!-- ══════ DASHBOARD ══════ -->
+  <div class="view" id="view-dash">
+    <div class="section-head">
+      <h2>Dashboard</h2>
+      <span class="sh-sub">Per-Map · Per-10 Rates</span>
+      <div class="section-rule"></div>
+    </div>
+    <div class="dash-filters">
+      <div class="field"><label>Team</label>
+        <select id="fTeam" style="min-width:180px"><option value="">All Teams</option></select></div>
+      <div class="field"><label>Role</label>
+        <select id="fRole" style="min-width:120px">
+          <option value="">All Roles</option>
+          <option>Tank</option><option>DPS</option><option>Support</option>
+        </select></div>
+      <div class="field"><label>Stage</label>
+        <select id="fStage" style="min-width:150px">
+          <option value="">All Stages</option>
+          <option>Round Robin</option><option>Bracket Stage</option><option>Finals</option>
+        </select></div>
+      <div class="field"><label>Min Maps</label>
+        <input type="number" id="fMinMaps" min="1" value="1" style="width:80px"></div>
+    </div>
+    <div id="dashContent"></div>
+  </div>
+
+  <!-- ══════ xS PREDICTOR ══════ -->
+  <div class="view" id="view-xs">
+    <div class="section-head">
+      <h2>xS Predictor</h2>
+      <span class="sh-sub">Expected Score · Pre-Series Forecast</span>
+      <div class="section-rule"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-lbl">Select Matchup</div>
+      <div class="form-row cols-3">
+        <div class="field"><label>Team A</label><select id="xsTeamA"></select></div>
+        <div class="field"><label>Team B</label><select id="xsTeamB"></select></div>
+        <div class="field"><label>Map Type (optional)</label>
+          <select id="xsMapType">
+            <option value="">Any / Series Average</option>
+            <option>Control</option><option>Flashpoint</option>
+            <option>Hybrid</option><option>Push</option><option>Escort</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:.6rem">
+        <button class="btn btn-primary" id="xsRun">Generate xS</button>
+      </div>
+    </div>
+    <div id="xsOutput"></div>
+  </div>
+
+</div><!-- end .page -->
+
+<div class="footer">BGC Community Draft Tournament · Summer 2026 · Stats saved per map · Best of 5 series</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────────────
+
+// Three roles only: Tank, DPS, Support
+const ROLE_ORDER  = ["Tank","DPS","Support"];
+const ROLE_COLORS = { "Tank":"#1a3a6b", "DPS":"#c8102e", "Support":"#1b6e3a" };
+
+// Map pool from tournament doc — grouped by type
+// Type order: Control, Flashpoint, Hybrid, Push, Escort
+const MAP_POOL = {
+  "Control":    ["Ilios","Lijiang","Nepal"],
+  "Flashpoint": ["Suravasa","Aatlis","New Junk City"],
+  "Hybrid":     ["Blizzard World","King's Row","Midtown"],
+  "Push":       ["Esperanca","New Queen Street","Runasapi"],
+  "Escort":     ["Rialto","Route 66","Watchpoint: Gibraltar"],
+};
+const MAP_TYPES = Object.keys(MAP_POOL);
+
+// Teams: starters sorted Tank → DPS → Support
+// All roster members are peers — no sub distinction shown to user
+const TEAMS = {
+  "Uncs": { color:"#D4537E", captain:"Grifdy",
+    players:[
+      {player:"Grifdy",      role:"Tank"},
+      {player:"jisf",        role:"DPS"},
+      {player:"Lava",        role:"DPS"},
+      {player:"Divina",      role:"DPS"},
+      {player:"sm6225",      role:"Support"},
+      {player:"HomieBaba",   role:"Support"},
+      {player:"DeLille",     role:"DPS"},
+    ]
+  },
+  "GLP-1 Grinders": { color:"#1D9E75", captain:"Aussie",
+    players:[
+      {player:"Aussie",       role:"Tank"},
+      {player:"seouless",     role:"DPS"},
+      {player:"NotGunner",    role:"DPS"},
+      {player:"RET",          role:"Support"},
+      {player:"toeinfection", role:"Support"},
+      {player:"Xirfix",       role:"Tank"},
+      {player:"Benasaurs",    role:"Tank"},
+    ]
+  },
+  "Forscythies": { color:"#378ADD", captain:"Forscythe",
+    players:[
+      {player:"starryflower", role:"Tank"},
+      {player:"GoldenGear",   role:"DPS"},
+      {player:"NinerActual",  role:"DPS"},
+      {player:"lexx",         role:"Support"},
+      {player:"Forscythe",    role:"Support"},
+      {player:"Trench",       role:"DPS"},
+      {player:"zephyrine",    role:"Support"},
+    ]
+  },
+  "Pratty's Pals": { color:"#D85A30", captain:"Pratty",
+    players:[
+      {player:"Crazerio",    role:"Tank"},
+      {player:"Sockdolager", role:"DPS"},
+      {player:"Mafia",       role:"DPS"},
+      {player:"Th0rnt0ns",   role:"Support"},
+      {player:"EFRY6S",      role:"Support"},
+      {player:"Pratty",      role:"Support"},
+      {player:"BleedingLove",role:"Support"},
+      {player:"GWIPPY",      role:"DPS"},
+    ]
+  },
+  "Terabyte Titans": { color:"#7F77DD", captain:"Tera",
+    players:[
+      {player:"Tera",      role:"Tank"},
+      {player:"Aurum",     role:"DPS"},
+      {player:"jj183",     role:"DPS"},
+      {player:"Jhunli",    role:"Support"},
+      {player:"Mmmmmyuh",  role:"Support"},
+      {player:"caesarnox", role:"Tank"},
+      {player:"Blizno",    role:"Support"},
+    ]
+  },
+};
+const TEAM_NAMES = Object.keys(TEAMS);
+
+// Starting 5 per team in role order (Tank, DPS×2, Support×2)
+// Used to pre-populate the entry table
+const STARTING_5 = {
+  "Uncs":            ["Grifdy","jisf","Lava","sm6225","HomieBaba"],
+  "GLP-1 Grinders":  ["Aussie","seouless","NotGunner","RET","toeinfection"],
+  "Forscythies":     ["starryflower","GoldenGear","NinerActual","lexx","Forscythe"],
+  "Pratty's Pals":   ["Crazerio","Sockdolager","Mafia","Th0rnt0ns","EFRY6S"],
+  "Terabyte Titans": ["Tera","Aurum","jj183","Jhunli","Mmmmmyuh"],
+};
+
+let MATCHES = [];
+let sortKey = "kp10", sortDir = -1;
+
+// ─────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────
+const $   = s => document.querySelector(s);
+const $$  = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const tc  = n => TEAMS[n]?.color || "#6b6458";
+const num = v => { const n=parseFloat(v); return isNaN(n)?0:n; };
+const fmtBig = n => n>=1000 ? (n/1000).toFixed(1)+"k" : Number.isFinite(n)?n.toFixed(0):"—";
+
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2000); }
+
+// Lookup a player's base role from team data
+function playerRole(team, playerName){
+  const p=(TEAMS[team]?.players||[]).find(x=>x.player===playerName);
+  return p?.role||"";
+}
+
+// ─────────────────────────────────────────────────────
+// STORAGE
+// ─────────────────────────────────────────────────────
+async function loadAll(){
+  try{
+    const res=await window.storage.list("match:");
+    if(!res?.keys?.length){ MATCHES=[]; return; }
+    const out=[];
+    for(const k of res.keys){
+      try{ const r=await window.storage.get(k); if(r) out.push(JSON.parse(r.value)); }catch(e){}
+    }
+    MATCHES=out.sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
+  }catch(e){ MATCHES=[]; }
+}
+async function saveMatch(m){
+  try{ await window.storage.set("match:"+m.id, JSON.stringify(m)); return true; }catch(e){ return false; }
+}
+async function delMatch(id){
+  try{ await window.storage.delete("match:"+id); return true; }catch(e){ return false; }
+}
+
+// ─────────────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────────────
+$$(".tab").forEach(t=>t.addEventListener("click",()=>{
+  $$(".tab").forEach(x=>x.classList.remove("active"));
+  $$(".view").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  const v=t.dataset.view;
+  $("#view-"+v).classList.add("active");
+  if(v==="log")  renderLog();
+  if(v==="dash") renderDash();
+  if(v==="xs")   { fillSelect($("#xsTeamA"),TEAM_NAMES,TEAM_NAMES[0]); fillSelect($("#xsTeamB"),TEAM_NAMES,TEAM_NAMES[1]); }
+}));
+
+// ─────────────────────────────────────────────────────
+// ENTRY FORM INIT
+// ─────────────────────────────────────────────────────
+function fillSelect(sel, names, def){
+  sel.innerHTML=names.map(n=>`<option ${n===def?"selected":""}>${esc(n)}</option>`).join("");
+}
+fillSelect($("#teamA"), TEAM_NAMES, TEAM_NAMES[0]);
+fillSelect($("#teamB"), TEAM_NAMES, TEAM_NAMES[1]);
+fillSelect($("#fTeam"), [""].concat(TEAM_NAMES), "");
+$("#gdate").value=new Date().toISOString().slice(0,10);
+
+// Team selects update series label + rebuild maps
+function onTeamChange(){
+  updateSeriesDisplay();
+  maps.forEach(m=>{ m.rows=[]; ensureMapRows(m); });
+  renderMapTabs(); renderMapEditor();
+}
+$("#teamA").addEventListener("change", onTeamChange);
+$("#teamB").addEventListener("change", onTeamChange);
+$("#stage").addEventListener("change", ()=>{});
+
+// ─────────────────────────────────────────────────────
+// SERIES SCORE (derived from map results, BO5)
+// ─────────────────────────────────────────────────────
+function calcSeries(){
+  let a=0, b=0;
+  maps.forEach(m=>{
+    if(m.result==="a") a++;
+    else if(m.result==="b") b++;
+    // draw: neither gets a point
+  });
+  return {a,b};
+}
+function updateSeriesDisplay(){
+  const tA=$("#teamA").value, tB=$("#teamB").value;
+  $("#seriesTeamA").textContent=tA;
+  $("#seriesTeamB").textContent=tB;
+  const {a,b}=calcSeries();
+  const sA=$("#seriesScoreA"), sB=$("#seriesScoreB");
+  sA.textContent=a; sB.textContent=b;
+  sA.className=a>=3?"w":"sep"; sB.className=b>=3?"w":"sep";
+  let note="Best of 5 · First to 3";
+  if(a>=3) note=`${tA} wins the series`;
+  else if(b>=3) note=`${tB} wins the series`;
+  else if(a===2&&b<3) note=`${tA} leads · match point`;
+  else if(b===2&&a<3) note=`${tB} leads · match point`;
+  else if(a===b&&a>0) note=`Tied ${a}–${b}`;
+  $("#seriesStatus").textContent=note;
+}
+
+// ─────────────────────────────────────────────────────
+// MAP STATE
+// ─────────────────────────────────────────────────────
+let maps=[], activeMap=0;
+
+function newMap(idx){
+  return {id:uid(), name:"Map "+(idx+1), mapType:"", result:"", durMin:"", durSec:"", rows:[]};
+}
+
+function blankRow(player, role, team){
+  return {player, role, baseRole:role, team, offRole:false, k:"", d:"", a:"", dmg:"", mit:"", heal:"", hero:""};
+}
+
+function ensureMapRows(m){
+  if(m.rows.length) return;
+  const a=$("#teamA").value, b=$("#teamB").value;
+  // use starting 5 in role order
+  const getRows = team => {
+    const s5=STARTING_5[team]||[];
+    return s5.map(pName=>{
+      const role=playerRole(team,pName);
+      return blankRow(pName, role, team);
+    });
+  };
+  getRows(a).forEach(r=>m.rows.push(r));
+  getRows(b).forEach(r=>m.rows.push(r));
+}
+
+function initMaps(){
+  maps=[newMap(0)];
+  activeMap=0;
+  ensureMapRows(maps[0]);
+  updateSeriesDisplay();
+  renderMapTabs();
+  renderMapEditor();
+}
+
+function renderMapTabs(){
+  $("#mapTabs").innerHTML=maps.map((m,i)=>{
+    const label=m.name+(m.mapType?` · ${m.mapType}`:"");
+    return `<button class="map-tab${i===activeMap?" active":""}" data-mi="${i}">${esc(label)}</button>`;
+  }).join("")+`<button class="map-tab add" id="addMapBtn2">＋ Map</button>`;
+  $$(".map-tab[data-mi]").forEach(b=>b.addEventListener("click",()=>{
+    saveCurrentMapToState();
+    activeMap=parseInt(b.dataset.mi);
+    renderMapTabs(); renderMapEditor();
+  }));
+  $("#addMapBtn2")?.addEventListener("click", addMap);
+}
+
+function addMap(){
+  saveCurrentMapToState();
+  const m=newMap(maps.length);
+  ensureMapRows(m);
+  maps.push(m); activeMap=maps.length-1;
+  renderMapTabs(); renderMapEditor();
+}
+$("#addMapBtn").addEventListener("click", addMap);
+
+// ─────────────────────────────────────────────────────
+// MAP EDITOR
+// ─────────────────────────────────────────────────────
+function renderMapEditor(){
+  const m=maps[activeMap];
+  const a=$("#teamA").value, b=$("#teamB").value;
+
+  // Map type select + autofill name
+  const typeOpts=[""].concat(MAP_TYPES).map(t=>`<option value="${esc(t)}" ${m.mapType===t?"selected":""}>${t||"Select type…"}</option>`).join("");
+
+  // Map name: dropdown of maps for selected type, or text if no type
+  let nameField="";
+  if(m.mapType && MAP_POOL[m.mapType]){
+    const mapOpts=[""].concat(MAP_POOL[m.mapType]).map(n=>`<option value="${esc(n)}" ${m.name===n?"selected":""}>${esc(n)||"Select map…"}</option>`).join("");
+    nameField=`<div class="field"><label>Map Name</label><select id="mapName">${mapOpts}</select></div>`;
+  } else {
+    nameField=`<div class="field"><label>Map Name</label><input type="text" id="mapName" value="${esc(m.name)}" placeholder="Select a type to autofill…"></div>`;
+  }
+
+  // Result buttons
+  const resBtns=["a","b","d"].map(v=>{
+    const lbl=v==="a"?`${esc(a)} Win`:v==="b"?`${esc(b)} Win`:"Draw";
+    const cls=m.result===v?(v==="a"?"sel-a":v==="b"?"sel-b":"sel-d"):"";
+    return `<button class="rtbtn ${cls}" data-res="${v}">${lbl}</button>`;
+  }).join("");
+
+  // Player rows
+  let rows="", lastTeam="";
+  m.rows.forEach((row,ri)=>{
+    const teamObj=TEAMS[row.team];
+    if(row.team!==lastTeam){
+      rows+=`<tr class="team-divider"><td colspan="10">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${tc(row.team)};margin-right:6px;vertical-align:middle"></span>
+        ${esc(row.team)}
+      </td></tr>`;
+      lastTeam=row.team;
+    }
+
+    // Player dropdown — all team players grouped by role order
+    const allPlayers=ROLE_ORDER.flatMap(r=>(teamObj?.players||[]).filter(p=>p.role===r));
+    const playerOpts=allPlayers.map(p=>`<option value="${esc(p.player)}" data-base-role="${esc(p.role)}" ${p.player===row.player?"selected":""}>${esc(p.player)}</option>`).join("");
+
+    // Role display — show current role (may differ if off-role)
+    const roleColor=ROLE_COLORS[row.role]||"#6b6458";
+    const roleBadge=`<span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:${roleColor};color:#fff;padding:2px 7px;border-radius:2px">${esc(row.role)}</span>`;
+
+    // Off-role override select
+    const roleOpts=[""].concat(ROLE_ORDER).map(r=>`<option value="${esc(r)}" ${(row.offRole&&row.role===r)?"selected":""}>${r?`Playing ${r}`:"On role"}</option>`).join("");
+    const offRoleClass=row.offRole?"off-role-row":"";
+
+    rows+=`<tr class="${offRoleClass}">
+      <td><span class="tm-swatch" style="background:${tc(row.team)}"></span></td>
+      <td>
+        <div class="player-name" style="gap:.4rem;flex-wrap:wrap">
+          <select class="swap-sel" data-ri="${ri}" style="font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:.25rem .4rem;width:145px;border:1px solid var(--rule);background:var(--paper)">${playerOpts}</select>
+          ${roleBadge}
+          <select class="role-override" data-ri="${ri}" title="Override role if playing off-role" style="font-family:'Barlow Condensed',sans-serif;font-size:.78rem;padding:.2rem .35rem;border:1px solid var(--rule);background:var(--paper);color:var(--muted);border-radius:2px">${roleOpts}</select>
+        </div>
+      </td>
+      <td><input type="number" min="0" data-ri="${ri}" data-col="k"    value="${esc(row.k)}"></td>
+      <td><input type="number" min="0" data-ri="${ri}" data-col="d"    value="${esc(row.d)}"></td>
+      <td><input type="number" min="0" data-ri="${ri}" data-col="a"    value="${esc(row.a)}"></td>
+      <td><input type="number" min="0" class="wide" data-ri="${ri}" data-col="dmg"  value="${esc(row.dmg)}"></td>
+      <td><input type="number" min="0" class="wide" data-ri="${ri}" data-col="mit"  value="${esc(row.mit)}"></td>
+      <td><input type="number" min="0" class="wide" data-ri="${ri}" data-col="heal" value="${esc(row.heal)}"></td>
+      <td><input type="text" style="width:90px;font-size:.8rem" data-ri="${ri}" data-col="hero" value="${esc(row.hero)}"></td>
+    </tr>`;
+  });
+
+  // Duration: MM:SS
+  const dMin=m.durMin||"", dSec=m.durSec||"";
+
+  $("#mapEditor").innerHTML=`
+    <div class="form-row cols-4" style="margin-bottom:.8rem">
+      <div class="field">
+        <label>Map Type</label>
+        <select id="mapType">${typeOpts}</select>
+      </div>
+      ${nameField}
+      <div class="field">
+        <label>Duration</label>
+        <div style="display:flex;gap:.4rem;align-items:center">
+          <input type="number" id="durMin" min="0" max="59" placeholder="MM" value="${esc(dMin)}" style="width:64px;text-align:center">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--muted)">:</span>
+          <input type="number" id="durSec" min="0" max="59" placeholder="SS" value="${esc(dSec)}" style="width:64px;text-align:center">
+        </div>
+      </div>
+      <div class="field">
+        <label>Result</label>
+        <div class="result-toggle">${resBtns}</div>
+      </div>
+    </div>
+    <p class="note" style="margin-bottom:.8rem">Use the role override dropdown to mark a player as playing off-role for this map. Highlighted rows indicate off-role play.</p>
+    <div class="entry-wrap">
+      <table class="entry-table">
+        <thead><tr>
+          <th style="width:18px"></th>
+          <th>Player</th>
+          <th>K</th><th>D</th><th>A</th>
+          <th>DMG</th><th>MIT</th><th>HEAL</th><th>Hero</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+
+  // Map type change → rebuild name field
+  $("#mapType")?.addEventListener("change",e=>{
+    maps[activeMap].mapType=e.target.value;
+    maps[activeMap].name=MAP_POOL[e.target.value]?.[0]||"Map "+(activeMap+1);
+    renderMapTabs(); renderMapEditor();
+  });
+
+  // Map name change
+  $("#mapName")?.addEventListener("change",e=>{ maps[activeMap].name=e.target.value; renderMapTabs(); });
+  $("#mapName")?.addEventListener("input",e=>{ maps[activeMap].name=e.target.value; renderMapTabs(); });
+
+  // Duration
+  const syncDur=()=>{
+    maps[activeMap].durMin=$("#durMin")?.value||"";
+    maps[activeMap].durSec=$("#durSec")?.value||"";
+  };
+  $("#durMin")?.addEventListener("change",syncDur);
+  $("#durSec")?.addEventListener("change",syncDur);
+
+  // Result buttons
+  $$(".rtbtn").forEach(b=>b.addEventListener("click",()=>{
+    maps[activeMap].result=b.dataset.res;
+    updateSeriesDisplay();
+    renderMapTabs(); renderMapEditor();
+  }));
+
+  // Player swap
+  $$("#mapEditor .swap-sel").forEach(sel=>sel.addEventListener("change",()=>{
+    const ri=parseInt(sel.dataset.ri);
+    const row=maps[activeMap].rows[ri];
+    row.player=sel.value;
+    const opt=sel.querySelector(`option[value="${CSS.escape(sel.value)}"]`);
+    const baseRole=opt?.dataset?.baseRole||row.role;
+    row.baseRole=baseRole;
+    row.role=row.offRole?row.role:baseRole;
+    saveCurrentMapToState(); renderMapEditor();
+  }));
+
+  // Off-role override
+  $$("#mapEditor .role-override").forEach(sel=>sel.addEventListener("change",()=>{
+    const ri=parseInt(sel.dataset.ri);
+    const row=maps[activeMap].rows[ri];
+    if(sel.value){
+      row.offRole=true;
+      row.role=sel.value;
+    } else {
+      row.offRole=false;
+      row.role=row.baseRole;
+    }
+    saveCurrentMapToState(); renderMapEditor();
+  }));
+
+  // Stat inputs
+  $$("#mapEditor input[data-ri]").forEach(inp=>{
+    const sync=()=>{ const ri=parseInt(inp.dataset.ri); if(!isNaN(ri)) maps[activeMap].rows[ri][inp.dataset.col]=inp.value; };
+    inp.addEventListener("change",sync); inp.addEventListener("blur",sync);
+  });
+}
+
+function saveCurrentMapToState(){
+  const m=maps[activeMap];
+  // player swaps
+  $$("#mapEditor .swap-sel").forEach(sel=>{
+    const ri=parseInt(sel.dataset.ri);
+    if(isNaN(ri)) return;
+    const row=m.rows[ri];
+    row.player=sel.value;
+    const opt=sel.querySelector(`option[value="${CSS.escape(sel.value)}"]`);
+    row.baseRole=opt?.dataset?.baseRole||row.baseRole;
+    if(!row.offRole) row.role=row.baseRole;
+  });
+  // role overrides
+  $$("#mapEditor .role-override").forEach(sel=>{
+    const ri=parseInt(sel.dataset.ri);
+    if(isNaN(ri)) return;
+    const row=m.rows[ri];
+    if(sel.value){ row.offRole=true; row.role=sel.value; }
+    else{ row.offRole=false; row.role=row.baseRole; }
+  });
+  // stat inputs
+  $$("#mapEditor input[data-ri]").forEach(inp=>{
+    const ri=parseInt(inp.dataset.ri);
+    if(!isNaN(ri)) m.rows[ri][inp.dataset.col]=inp.value;
+  });
+  m.mapType=$("#mapType")?.value||m.mapType;
+  m.name=$("#mapName")?.value||m.name;
+  m.durMin=$("#durMin")?.value||"";
+  m.durSec=$("#durSec")?.value||"";
+}
+
+// ─────────────────────────────────────────────────────
+// DURATION HELPERS
+// ─────────────────────────────────────────────────────
+function durToMins(durMin, durSec){
+  const m=num(durMin), s=num(durSec);
+  if(!m&&!s) return null;
+  return m + s/60;
+}
+function durLabel(durMin, durSec){
+  const m=num(durMin), s=num(durSec);
+  if(!m&&!s) return "";
+  return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+
+// ─────────────────────────────────────────────────────
+// SAVE MATCH
+// ─────────────────────────────────────────────────────
+$("#saveMatch").addEventListener("click", async()=>{
+  saveCurrentMapToState();
+  const a=$("#teamA").value, b=$("#teamB").value;
+  if(a===b){ toast("Pick two different teams"); return; }
+  if(!maps.length){ toast("Add at least one map"); return; }
+  const {a:sA, b:sB}=calcSeries();
+  const match={
+    id:uid(), teamA:a, teamB:b,
+    stage:$("#stage").value,
+    date:$("#gdate").value,
+    seriesA:sA, seriesB:sB,
+    maps:maps.map(m=>({
+      ...m,
+      rows:m.rows.map(r=>({...r,
+        k:num(r.k), d:num(r.d), a:num(r.a),
+        dmg:num(r.dmg), mit:num(r.mit), heal:num(r.heal),
+        hero:String(r.hero||"").trim(),
+      }))
+    })),
+    savedAt:Date.now()
+  };
+  const ok=await saveMatch(match);
+  if(ok){ MATCHES.unshift(match); toast("Match saved ✓"); initForm(); }
+  else   { toast("Save failed — try again"); }
+});
+
+function initForm(){
+  initMaps();
+}
+$("#clearForm").addEventListener("click", initForm);
+
+// ─────────────────────────────────────────────────────
+// RENDER MATCH LOG
+// ─────────────────────────────────────────────────────
+function renderLog(){
+  const w=$("#logList");
+  $("#logCount").textContent=MATCHES.length+(MATCHES.length===1?" Match":" Matches");
+  if(!MATCHES.length){
+    w.innerHTML=`<div class="empty"><div class="big">No Matches Yet</div><p>Log your first match to see it here.</p></div>`;
+    return;
+  }
+  w.innerHTML=MATCHES.map(match=>{
+    const aW=match.seriesA>=3, bW=match.seriesB>=3;
+    const mapSections=match.maps.map(m=>{
+      const resCls=m.result==="a"?"res-a":m.result==="b"?"res-b":m.result==="d"?"res-d":"";
+      const resLbl=m.result==="a"?match.teamA+" Win":m.result==="b"?match.teamB+" Win":m.result==="d"?"Draw":"";
+      const dur=durToMins(m.durMin,m.durSec);
+      const durLbl=durLabel(m.durMin,m.durSec);
+      const rows=m.rows.filter(r=>r.player).map(r=>{
+        const kda=r.d>0?(r.k+r.a)/r.d:(r.k+r.a);
+        const roleColor=ROLE_COLORS[r.role]||"#6b6458";
+        const roleBadge=r.role?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;background:${roleColor};color:#fff;padding:1px 5px;border-radius:2px;margin-left:4px;vertical-align:middle;text-transform:uppercase">${esc(r.role)}</span>`:"";
+        const offBadge=r.offRole?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;background:${ROLE_COLORS[r.baseRole]||'#6b6458'};color:#fff;padding:1px 5px;border-radius:2px;margin-left:3px;vertical-align:middle;text-transform:uppercase;opacity:.55">${esc(r.baseRole)}</span>`:"";
+        return `<tr class="${r.offRole?"off-role-log":""}">
+          <td><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${tc(r.team)};vertical-align:middle"></span></td>
+          <td>${esc(r.player)}${roleBadge}${offBadge}</td>
+          <td>${r.k}</td><td>${r.d}</td><td>${r.a}</td>
+          <td>${kda.toFixed(2)}</td>
+          <td>${fmtBig(r.dmg)}</td><td>${fmtBig(r.mit)}</td><td>${fmtBig(r.heal)}</td>
+          <td>${dur?(r.k*10/dur).toFixed(1):"—"}</td>
+          <td>${dur?(r.dmg*10/dur).toFixed(0):"—"}</td>
+          <td>${esc(r.hero)||"—"}</td>
+        </tr>`;
+      }).join("");
+      return `<div class="map-section">
+        <div class="map-label">
+          ${m.mapType?`<span class="map-type-badge">${esc(m.mapType)}</span>`:""}
+          ${esc(m.name)}
+          ${durLbl?`· ${durLbl}`:""}
+          ${resCls?`<span class="map-result-badge ${resCls}">${esc(resLbl)}</span>`:""}
+        </div>
+        ${rows?`<table class="mini-stat">
+          <thead><tr><th></th><th>Player</th><th>K</th><th>D</th><th>A</th><th>KDA</th>
+            <th>DMG</th><th>MIT</th><th>HEAL</th><th>K/10</th><th>DMG/10</th><th>Hero</th>
+          </tr></thead><tbody>${rows}</tbody></table>`
+          :`<p class="note">No stats entered.</p>`}
+      </div>`;
+    }).join("");
+    return `<div class="game-card">
+      <div class="gc-head" data-id="${match.id}">
+        <div>
+          <div class="gc-title">${esc(match.teamA)} <span style="color:var(--muted)">vs</span> ${esc(match.teamB)}</div>
+          <div class="gc-meta">${esc(match.stage)}${match.date?" · "+match.date:""} · ${match.maps.length} map${match.maps.length!==1?"s":""}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.8rem">
+          <div class="gc-score-big">
+            <span class="${aW?"w":""}">${match.seriesA}</span>
+            <span class="sep">–</span>
+            <span class="${bW?"w":""}">${match.seriesB}</span>
+          </div>
+          <span class="gc-chev">›</span>
+        </div>
+      </div>
+      <div class="gc-body" id="body-${match.id}">
+        ${mapSections}
+        <div class="btn-row"><button class="btn btn-danger btn-sm" data-del="${match.id}">Delete Match</button></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  $$(".gc-head").forEach(h=>h.addEventListener("click",()=>{
+    h.classList.toggle("open");
+    $("#body-"+h.dataset.id)?.classList.toggle("open");
+  }));
+  $$("[data-del]").forEach(b=>b.addEventListener("click",async e=>{
+    e.stopPropagation();
+    const id=b.dataset.del;
+    await delMatch(id); MATCHES=MATCHES.filter(m=>m.id!==id);
+    renderLog(); toast("Match deleted");
+  }));
+}
+
+// ─────────────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────────────
+function aggStats(){
+  const teamF=$("#fTeam").value, roleF=$("#fRole").value, stageF=$("#fStage").value;
+  const minMaps=parseInt($("#fMinMaps").value)||1;
+  const agg={};
+  MATCHES.forEach(match=>{
+    if(stageF&&match.stage!==stageF) return;
+    match.maps.forEach(m=>{
+      const dur=durToMins(m.durMin,m.durSec);
+      m.rows.forEach(r=>{
+        if(teamF&&r.team!==teamF) return;
+        if(roleF&&r.role!==roleF) return;
+        const key=r.player.toLowerCase().trim();
+        if(!key) return;
+        if(!agg[key]) agg[key]={player:r.player,team:r.team,role:r.role||"",
+          k:0,d:0,a:0,dmg:0,mit:0,heal:0,maps:0,totalMins:0,heroes:{},offRoleMaps:0};
+        const p=agg[key];
+        p.k+=num(r.k); p.d+=num(r.d); p.a+=num(r.a);
+        p.dmg+=num(r.dmg); p.mit+=num(r.mit); p.heal+=num(r.heal);
+        p.maps++;
+        if(dur) p.totalMins+=dur;
+        if(r.hero) p.heroes[r.hero]=(p.heroes[r.hero]||0)+1;
+        if(r.offRole) p.offRoleMaps++;
+        if(r.team) p.team=r.team;
+      });
+    });
+  });
+  return Object.values(agg).filter(p=>p.maps>=minMaps).map(p=>{
+    const hasMins=p.totalMins>0;
+    const kda=p.d>0?(p.k+p.a)/p.d:(p.k+p.a);
+    return {...p, kda,
+      kp10:  hasMins?p.k*10/p.totalMins:null,
+      dp10:  hasMins?p.d*10/p.totalMins:null,
+      ap10:  hasMins?p.a*10/p.totalMins:null,
+      dmgp10:hasMins?p.dmg*10/p.totalMins:null,
+      mitp10:hasMins?p.mit*10/p.totalMins:null,
+      healp10:hasMins?p.heal*10/p.totalMins:null,
+      topHero:Object.entries(p.heroes).sort((x,y)=>y[1]-x[1])[0]?.[0]||"—"
+    };
+  });
+}
+
+const LEAD_COLS=[
+  {key:"maps",    lbl:"Maps",     fmt:v=>v,                          title:"Maps Played"},
+  {key:"k",       lbl:"K",        fmt:v=>v,                          title:"Total Kills"},
+  {key:"d",       lbl:"D",        fmt:v=>v,                          title:"Total Deaths"},
+  {key:"a",       lbl:"A",        fmt:v=>v,                          title:"Total Assists"},
+  {key:"kda",     lbl:"KDA",      fmt:v=>v.toFixed(2),               title:"Kill-Death-Assist Ratio"},
+  {key:"kp10",    lbl:"K/10",     fmt:v=>v===null?"—":v.toFixed(1),  title:"Kills per 10 min"},
+  {key:"dp10",    lbl:"D/10",     fmt:v=>v===null?"—":v.toFixed(1),  title:"Deaths per 10 min"},
+  {key:"ap10",    lbl:"A/10",     fmt:v=>v===null?"—":v.toFixed(1),  title:"Assists per 10 min"},
+  {key:"dmg",     lbl:"DMG",      fmt:v=>fmtBig(v),                  title:"Total Damage Dealt"},
+  {key:"dmgp10",  lbl:"DMG/10",   fmt:v=>v===null?"—":fmtBig(v),    title:"Damage per 10 min"},
+  {key:"mit",     lbl:"MIT",      fmt:v=>fmtBig(v),                  title:"Total Damage Mitigated"},
+  {key:"mitp10",  lbl:"MIT/10",   fmt:v=>v===null?"—":fmtBig(v),    title:"Mitigation per 10 min"},
+  {key:"heal",    lbl:"HEAL",     fmt:v=>fmtBig(v),                  title:"Total Healing Done"},
+  {key:"healp10", lbl:"HEAL/10",  fmt:v=>v===null?"—":fmtBig(v),    title:"Healing per 10 min"},
+  {key:"offRoleMaps",lbl:"Off-Role",fmt:v=>v,                        title:"Maps Played Off-Role"},
+  {key:"topHero", lbl:"Top Hero", fmt:v=>v,                          title:"Most-played Hero"},
+];
+
+function renderDash(){
+  const rows=aggStats();
+  if(!rows.length){
+    $("#dashContent").innerHTML=`<div class="empty"><div class="big">No Data Yet</div><p>Log matches with duration to see per-10 rates.</p></div>`;
+    return;
+  }
+  rows.sort((a,b)=>{
+    let av=a[sortKey],bv=b[sortKey];
+    if(av===null||av===undefined) av=sortDir<0?-Infinity:Infinity;
+    if(bv===null||bv===undefined) bv=sortDir<0?-Infinity:Infinity;
+    if(typeof av==="string") return av.localeCompare(bv)*sortDir;
+    return (av-bv)*sortDir;
+  });
+  const hiLo={};
+  LEAD_COLS.forEach(c=>{
+    if(["topHero","maps","offRoleMaps"].includes(c.key)) return;
+    const vals=rows.map(r=>r[c.key]).filter(v=>v!==null&&v!==undefined);
+    hiLo[c.key]={hi:Math.max(...vals),lo:Math.min(...vals)};
+  });
+  const tiles=[
+    {lbl:"Kill Leader",  stat:"k",    p:rows.slice().sort((a,b)=>b.k-a.k)[0]},
+    {lbl:"DMG Leader",   stat:"dmg",  p:rows.slice().sort((a,b)=>b.dmg-a.dmg)[0]},
+    {lbl:"HEAL Leader",  stat:"heal", p:rows.slice().sort((a,b)=>b.heal-a.heal)[0]},
+    {lbl:"MIT Leader",   stat:"mit",  p:rows.slice().sort((a,b)=>b.mit-a.mit)[0]},
+    {lbl:"Best KDA",     stat:"kda",  p:rows.slice().sort((a,b)=>b.kda-a.kda)[0]},
+    {lbl:"K/10 Leader",  stat:"kp10", p:rows.slice().sort((a,b)=>(b.kp10||0)-(a.kp10||0))[0]},
+  ];
+  const tilesHTML=tiles.map(t=>{
+    if(!t.p) return "";
+    const c=tc(t.p.team);
+    const v=t.stat==="kda"?t.p.kda?.toFixed(2):t.stat==="kp10"?t.p.kp10?.toFixed(1):fmtBig(t.p[t.stat]);
+    return `<div class="tile" style="--tc:${c}">
+      <style>.tile:has(.tv-${t.p.player.replace(/\W/g,"_")})::before{background:${c}}</style>
+      <div class="tile-val tv-${t.p.player.replace(/\W/g,"_")}" style="color:${c}">${esc(t.p.player)}</div>
+      <div class="tile-lbl">${t.lbl}</div><div class="tile-sub">${v}</div>
+    </div>`;
+  }).join("");
+  const headHTML=`<th>#</th><th>Player</th>`+LEAD_COLS.map(c=>`<th data-sort="${c.key}" title="${c.title}">${c.lbl}${sortKey===c.key?` <span class="arr">${sortDir<0?"▼":"▲"}</span>`:""}</th>`).join("");
+  const bodyHTML=rows.map((p,i)=>{
+    const rk=i+1;
+    const rkCls=rk===1?"rk-1":rk===2?"rk-2":rk===3?"rk-3":"";
+    const roleColor=ROLE_COLORS[p.role]||"#6b6458";
+    const cells=LEAD_COLS.map(c=>{
+      const v=p[c.key]; const fv=c.fmt(v); let cls="";
+      if(hiLo[c.key]&&v!==null&&v!==undefined){
+        const {hi,lo}=hiLo[c.key];
+        const downBad=["d","dp10"].includes(c.key);
+        if(v===hi) cls=downBad?"stat-lo":"stat-hi";
+        if(v===lo) cls=downBad?"stat-hi":"stat-lo";
+      }
+      return `<td class="${cls}">${esc(String(fv))}</td>`;
+    }).join("");
+    return `<tr>
+      <td><span class="rk-num ${rkCls}">${rk}</span></td>
+      <td><div class="pname-cell">
+        <span class="tm-swatch" style="background:${tc(p.team)};height:20px"></span>
+        <span class="nm">${esc(p.player)}</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;background:${roleColor};color:#fff;padding:1px 6px;border-radius:2px;text-transform:uppercase">${esc(p.role)}</span>
+      </div></td>${cells}</tr>`;
+  }).join("");
+  $("#dashContent").innerHTML=`
+    <div class="stat-tiles">${tilesHTML}</div>
+    <div class="lead-wrap"><table class="lead-table">
+      <thead><tr>${headHTML}</tr></thead><tbody>${bodyHTML}</tbody>
+    </table></div>
+    <p class="note">Green = highest · Red = lowest · /10 requires duration entered as MM:SS · Off-Role column counts maps a player played outside their base role · Click any header to sort.</p>`;
+  $$(".lead-table th[data-sort]").forEach(th=>th.addEventListener("click",()=>{
+    const k=th.dataset.sort;
+    if(sortKey===k) sortDir*=-1;
+    else{ sortKey=k; sortDir=["topHero","player"].includes(k)?1:-1; }
+    renderDash();
+  }));
+}
+
+["#fTeam","#fRole","#fStage","#fMinMaps"].forEach(s=>$(s)?.addEventListener("change",renderDash));
+
+// ─────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────
+(async()=>{
+  $("#logList").innerHTML=`<div class="loading-msg">Loading…</div>`;
+  await loadAll();
+  initMaps();
+  renderLog();
+})();
+
+// ─────────────────────────────────────────────────────
+// xS — EXPECTED SCORE ENGINE
+// ─────────────────────────────────────────────────────
+
+// ── BASE STRENGTH DATA ──────────────────────────────
+// SR scale: 1=highest, 5=lowest within each 500-SR tier. Step = 100 SR.
+// Bronze 0–1499 · Silver 1500–1999 · Gold 2000–2499 · Platinum 2500–2999
+// Diamond 3000–3499 · Masters 3500–3999 · GM 4000–4499 · Champion 4500–4999
+// Rule: use explicit rank SR where given; use main-role SR, not hero SR.
+// Pratty excluded from Pals starters — not playing.
+// Tank: 1 player. DPS: avg of 2 starters. Support: avg of 2 starters.
+const TEAM_SR = {
+  //
+  // UNCS
+  // Tank:    Grifdy — GM 4000 (explicit, = GM 5 floor)
+  // DPS:     Lava — Champ 4 = 4600 | Divina — 3644 explicit → avg 4122
+  // Support: HomieBaba — 3759 corrected | sm6225 — Gold mid = 2200 → avg 2980
+  "Uncs": {
+    Tank:    4000,
+    DPS:     Math.round((4600 + 3644) / 2), // Lava 4600, Divina 3644
+    Support: Math.round((3759 + 2200) / 2), // HomieBaba 3759, sm6225 Gold mid 2200
+  },
+  //
+  // GLP-1 GRINDERS
+  // Tank:    Aussie — Masters 1 = 3900
+  // DPS:     seouless — 3600 corrected | NotGunner — 3800 corrected → avg 3700
+  // Support: RET — Champ 4 = 4600 | toeinfection — 4000 explicit → avg 4300
+  "GLP-1 Grinders": {
+    Tank:    3900,
+    DPS:     Math.round((3600 + 3800) / 2), // seouless 3600, NotGunner 3800
+    Support: Math.round((4600 + 4000) / 2), // RET 4600, toeinfection 4000
+  },
+  //
+  // FORSCYTHIES
+  // Tank:    starryflower — main rank SR 3600 (not hero SR)
+  // DPS:     GoldenGear — 3600 corrected | NinerActual — Diamond = 3000–3499, corrected 3400 → avg 3500
+  // Support: lexx — 4216 explicit | Forscythe — Silver flex support = Silver mid 1700 → avg 2958
+  "Forscythies": {
+    Tank:    3600,
+    DPS:     Math.round((3600 + 3400) / 2), // GoldenGear 3600, NinerActual 3400
+    Support: Math.round((4216 + 1700) / 2), // lexx 4216, Forscythe Silver mid 1700
+  },
+  //
+  // PRATTY'S PALS  (Pratty not playing — excluded from SR)
+  // Tank:    Crazerio — Masters 3 = 3700
+  // DPS:     Sockdolager — 3750 corrected | Mafia — 4271 explicit → avg 4011
+  // Support: Th0rnt0ns — 3695 explicit | EFRY6S — Gold mid = 2200 → avg 2948
+  "Pratty's Pals": {
+    Tank:    3700,
+    DPS:     Math.round((3750 + 4271) / 2), // Sockdolager 3750, Mafia 4271
+    Support: Math.round((3695 + 2200) / 2), // Th0rnt0ns 3695, EFRY6S Gold mid 2200
+  },
+  //
+  // TERABYTE TITANS
+  // Tank:    Tera — Platinum 2 = 2800
+  // DPS:     Aurum — 4214 explicit | jj183 — main DPS role SR 3500 (Kiriko hero SR ignored) → avg 3857
+  // Support: Jhunli — Platinum 3 = 2700 | Mmmmmyuh — Bronze 1 = 1408 explicit → avg 2054
+  "Terabyte Titans": {
+    Tank:    2800,
+    DPS:     Math.round((4214 + 3500) / 2), // Aurum 4214, jj183 3500
+    Support: Math.round((2700 + 1408) / 2), // Jhunli Plat 3=2700, Mmmmmyuh 1408
+  },
+};
+
+// Published power scores (from power rankings doc)
+const POWER_SCORE = {
+  "Uncs":            88,
+  "GLP-1 Grinders":  74,
+  "Forscythies":     65,
+  "Pratty's Pals":   58,
+  "Terabyte Titans": 38,
+};
+
+// Map-type affinity delta: how much to shift win% for Team A on each map type.
+// Based on composition style: dive (Control/Push), poke (Escort/Hybrid), all-round (Flash).
+// Values are adjustments in win% points applied to Team A; Team B gets the inverse.
+// Positive = Team A favoured on this type, negative = Team B favoured.
+// These are applied per matchup based on each team's archetype.
+// Archetypes: D=Dive, P=Poke, B=Balanced
+const TEAM_ARCHETYPE = {
+  "Uncs":            "D",  // GM tank Grifdy, Lava Genji/Tracer → aggressive dive
+  "GLP-1 Grinders":  "D",  // Aussie Winston-first, RET enables dive
+  "Forscythies":     "B",  // starryflower Reinhardt + poke DPS → balanced
+  "Pratty's Pals":   "P",  // Mafia Pharah/Echo + Sockdolager Sojourn → poke
+  "Terabyte Titans": "B",  // mixed SR, no clear style dominance
+};
+
+// Affinity matrix: how archetype pairs perform on each map type
+// [A_arch][B_arch][mapType] → delta in win% points for A
+function archetypeDelta(archA, archB, mapType) {
+  const diveTypes  = { "Control":4, "Push":3, "Hybrid":-2, "Escort":-3, "Flashpoint":1 };
+  const pokeTypes  = { "Control":-3, "Push":-2, "Hybrid":3, "Escort":4, "Flashpoint":1 };
+  const balTypes   = { "Control":0, "Push":0, "Hybrid":0, "Escort":0, "Flashpoint":0 };
+  const favA = archA==="D"?diveTypes:archA==="P"?pokeTypes:balTypes;
+  const favB = archB==="D"?diveTypes:archB==="P"?pokeTypes:balTypes;
+  // A benefits from its own strong types, suffers when B has opposing advantage
+  return (favA[mapType]||0) - (favB[mapType]||0);
+}
+
+// ── H2H FROM SAVED MATCHES ──────────────────────────
+function getH2H(tA, tB) {
+  let wA=0, wB=0, draws=0, mapsA=0, mapsB=0, mapsD=0;
+  MATCHES.forEach(m => {
+    const isAB = (m.teamA===tA && m.teamB===tB);
+    const isBA = (m.teamA===tB && m.teamB===tA);
+    if (!isAB && !isBA) return;
+    const sA = isAB ? m.seriesA : m.seriesB;
+    const sB = isAB ? m.seriesB : m.seriesA;
+    if (sA >= 3)      wA++;
+    else if (sB >= 3) wB++;
+    else              draws++;
+    // per-map wins
+    (m.maps||[]).forEach(mp => {
+      const r = mp.result;
+      if (!r) return;
+      const res = isAB ? r : (r==="a"?"b":r==="b"?"a":r);
+      if (res==="a")      mapsA++;
+      else if (res==="b") mapsB++;
+      else                mapsD++;
+    });
+  });
+  return { wA, wB, draws, mapsA, mapsB, mapsD };
+}
+
+// ── CORE WIN PROBABILITY MODEL ───────────────────────
+// Returns P(Team A wins a single map) vs Team B on a given map type.
+// Weighted sum: SR composite (40%), Power score (40%), H2H (15%), Map affinity (5%)
+function mapWinProb(tA, tB, mapType) {
+  const srA = TEAM_SR[tA], srB = TEAM_SR[tB];
+  if (!srA || !srB) return 0.5;
+
+  // SR composite: weighted average (Tank 30, DPS 35, Sup 35)
+  const srCompA = srA.Tank*0.30 + srA.DPS*0.35 + srA.Support*0.35;
+  const srCompB = srB.Tank*0.30 + srB.DPS*0.35 + srB.Support*0.35;
+  // normalise to 0-1: logistic on difference, max meaningful diff ~1500 SR
+  const srDiff  = (srCompA - srCompB) / 800;
+  const srProb  = 1 / (1 + Math.exp(-srDiff));
+
+  // Power score
+  const psA = (POWER_SCORE[tA]||50) / 100;
+  const psB = (POWER_SCORE[tB]||50) / 100;
+  const psProb = psA / (psA + psB);
+
+  // H2H adjustment — if enough maps played, shift toward observed rate
+  const h2h = getH2H(tA, tB);
+  const totalMapsPl = h2h.mapsA + h2h.mapsB + h2h.mapsD;
+  let h2hProb = 0.5;
+  if (totalMapsPl >= 3) {
+    h2hProb = (h2h.mapsA + h2h.mapsD*0.5) / totalMapsPl;
+  }
+  const h2hWeight = Math.min(0.15, totalMapsPl * 0.015); // grows up to 15% at 10+ maps
+
+  // Map type affinity
+  const archDelta = mapType ? archetypeDelta(TEAM_ARCHETYPE[tA]||"B", TEAM_ARCHETYPE[tB]||"B", mapType) : 0;
+  const affinityAdj = archDelta / 100; // convert % points to probability
+
+  // Combine
+  const baseWeight = 1 - h2hWeight;
+  let prob = (srProb*0.40 + psProb*0.40 + h2hProb*h2hWeight) * (baseWeight + h2hWeight) / (baseWeight + h2hWeight)
+           + affinityAdj * 0.05;
+  // Actually simpler weighted blend:
+  prob = srProb*0.40 + psProb*0.40 + h2hProb*h2hWeight + (0.20-h2hWeight)*0.5 + affinityAdj*0.05;
+
+  // Clamp to reasonable bounds (never below 5% or above 95%)
+  return Math.max(0.05, Math.min(0.95, prob));
+}
+
+// ── BO5 SCORE DISTRIBUTION ───────────────────────────
+// Monte-Carlo simulation of BO5 given a single-map win probability p.
+// Returns distribution of all (a, b) terminal scores including draws.
+// In BO5: first to 3 wins. A draw on a map neither team wins a point.
+// We simulate 50,000 series for accuracy.
+function simulateBo5(p, drawRate=0.04) {
+  const SIMS = 50000;
+  const dist = {}; // "a-b" → count
+  for (let i=0; i<SIMS; i++) {
+    let a=0, b=0, maps=0;
+    while (a<3 && b<3 && maps<5) {
+      const r = Math.random();
+      if (r < drawRate)     { /* draw: no point */ }
+      else if (r < drawRate+p*(1-drawRate)) { a++; }
+      else                  { b++; }
+      maps++;
+    }
+    const key = a+"-"+b;
+    dist[key] = (dist[key]||0) + 1;
+  }
+  // normalise
+  const out = {};
+  for (const [k,v] of Object.entries(dist)) out[k] = v/SIMS;
+  return out;
+}
+
+// Compute expected score and series win% from distribution
+function distSummary(dist) {
+  let winA=0, winB=0, draw=0, expA=0, expB=0;
+  for (const [k,v] of Object.entries(dist)) {
+    const [a,b] = k.split("-").map(Number);
+    if (a>=3)      { winA+=v; }
+    else if (b>=3) { winB+=v; }
+    else           { draw+=v; }
+    expA += a*v; expB += b*v;
+  }
+  return { winA, winB, draw, expA, expB };
+}
+
+// Most likely score line
+function likelyScore(dist) {
+  return Object.entries(dist).sort((a,b)=>b[1]-a[1])[0];
+}
+
+// ── RENDER xS ───────────────────────────────────────
+function renderXS() {
+  const tA = $("#xsTeamA").value;
+  const tB = $("#xsTeamB").value;
+  const mapType = $("#xsMapType").value;
+
+  if (tA === tB) { toast("Pick two different teams"); return; }
+
+  const colorA = tc(tA), colorB = tc(tB);
+  const archA = TEAM_ARCHETYPE[tA]||"B", archB = TEAM_ARCHETYPE[tB]||"B";
+
+  // Overall map win probability (series average or specific type)
+  const types = mapType ? [mapType] : ["Control","Flashpoint","Hybrid","Push","Escort"];
+  const avgP  = types.reduce((s,t) => s + mapWinProb(tA, tB, t), 0) / types.length;
+
+  // Per-type probabilities
+  const typeProbs = {};
+  ["Control","Flashpoint","Hybrid","Push","Escort"].forEach(t => {
+    typeProbs[t] = mapWinProb(tA, tB, t);
+  });
+
+  // Draw rate from actual data or default 4%
+  const h2h = getH2H(tA, tB);
+  const totalMaps = h2h.mapsA + h2h.mapsB + h2h.mapsD;
+  const drawRate = totalMaps >= 5 ? h2h.mapsD / totalMaps : 0.04;
+
+  // BO5 simulation
+  const dist = simulateBo5(avgP, drawRate);
+  const sum  = distSummary(dist);
+  const [topScore, topProb] = likelyScore(dist);
+  const [tsA, tsB] = topScore.split("-").map(Number);
+
+  // Role SR breakdown
+  const srA = TEAM_SR[tA]||{}, srB = TEAM_SR[tB]||{};
+
+  // H2H per-role stat averages from saved maps
+  function avgStatH2H(tName, stat) {
+    let total=0, maps=0;
+    MATCHES.forEach(m => {
+      if (m.teamA!==tA && m.teamB!==tA && m.teamA!==tB && m.teamB!==tB) return;
+      (m.maps||[]).forEach(mp => {
+        mp.rows.forEach(r => {
+          if (r.team!==tName) return;
+          const v=num(r[stat]); if(v>0){total+=v;maps++;}
+        });
+      });
+    });
+    return maps>0 ? (total/maps).toFixed(1) : "—";
+  }
+
+  // Confidence label
+  const confidence = totalMaps >= 10 ? "High (H2H data)" :
+                     totalMaps >= 4  ? "Moderate (partial H2H)" :
+                     "Prior only · No H2H data";
+
+  // Map-by-map cards for a likely series (up to 5 maps, alternating types from pool)
+  const seriesMapTypes = mapType
+    ? [mapType, mapType, mapType, mapType, mapType]
+    : ["Control","Flashpoint","Hybrid","Push","Escort"]; // one of each in type order
+
+  // Build series win probabilities for each map in the predicted series
+  // Track cumulative win state for "if it gets here" context
+  let mapCards = "";
+  let cA=0, cB=0;
+  seriesMapTypes.forEach((mt, i) => {
+    if (cA>=3 || cB>=3) return; // series already over
+    const mp = mapWinProb(tA, tB, mt);
+    const pctA = Math.round(mp*100), pctB = 100-pctA;
+    const favours = mp > 0.5 ? tA : mp < 0.5 ? tB : "Even";
+    const favColor = mp > 0.5 ? colorA : mp < 0.5 ? colorB : "#6b6458";
+    const predCls = mp > 0.52 ? `background:${colorA}22;color:${colorA}` :
+                    mp < 0.48 ? `background:${colorB}22;color:${colorB}` :
+                    "background:var(--paper-dark);color:var(--muted)";
+    const mapNames = MAP_POOL[mt]||[];
+    const mapName = mapType ? (MAP_POOL[mt]||[]).join(" / ") : (mapNames[Math.floor(i%mapNames.length)]||mt);
+
+    mapCards += `<div class="xs-map-card" style="--mc:${favColor}">
+      <style>.xs-map-card:nth-child(${i+1})::before{background:${favColor}}</style>
+      <div class="xs-map-num">Map ${i+1} · ${esc(mt)}</div>
+      <div class="xs-map-name">${esc(mapType ? mt : mapName)}</div>
+      <div class="xs-map-prob-bar">
+        <div style="width:${pctA}%;background:${colorA};height:100%;border-radius:3px 0 0 3px"></div>
+        <div style="width:${pctB}%;background:${colorB};height:100%;border-radius:0 3px 3px 0"></div>
+      </div>
+      <div class="xs-map-labels">
+        <span style="color:${colorA}">${pctA}%</span>
+        <span style="color:${colorB}">${pctB}%</span>
+      </div>
+      <div class="xs-map-pred" style="${predCls}">${esc(favours==="Even"?"50/50":favours+" favoured")}</div>
+    </div>`;
+
+    // Advance simulated score for display context
+    if (mp >= 0.5) cA++; else cB++;
+  });
+
+  // Factor bars
+  function factorBar(lbl, vA, vB, fmtFn) {
+    const total = vA+vB; if (!total) return "";
+    const pA = Math.round(vA/total*100);
+    const pB = 100-pA;
+    return `<div class="xs-bar-row">
+      <div class="xs-bar-lbl">${lbl}</div>
+      <div class="xs-bar-val" style="color:${colorA}">${fmtFn(vA)}</div>
+      <div class="xs-bar-track">
+        <div class="xs-bar-a" style="width:${pA}%;background:${colorA}"></div>
+        <div class="xs-bar-b" style="width:${pB}%;background:${colorB}"></div>
+      </div>
+      <div class="xs-bar-val" style="color:${colorB}">${fmtFn(vB)}</div>
+    </div>`;
+  }
+
+  // Score distribution table — most likely outcomes
+  const topScores = Object.entries(dist).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const scoreRows = topScores.map(([sc,prob]) => {
+    const [a,b]=sc.split("-").map(Number);
+    const winner = a>=3?tA:b>=3?tB:"Draw";
+    const wColor = a>=3?colorA:b>=3?colorB:"#6b6458";
+    return `<tr>
+      <td style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;text-align:left;padding:.4rem .6rem">
+        <span style="color:${colorA}">${a}</span><span style="color:var(--muted)">–</span><span style="color:${colorB}">${b}</span>
+      </td>
+      <td style="padding:.4rem .6rem">
+        <div style="height:8px;background:${wColor};border-radius:3px;width:${Math.round(prob*100)*3}px;min-width:4px;display:inline-block;opacity:.7"></div>
+      </td>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;padding:.4rem .6rem;color:${wColor}">${(prob*100).toFixed(1)}%</td>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;padding:.4rem .6rem;color:var(--muted)">${esc(winner)}</td>
+    </tr>`;
+  }).join("");
+
+  const mapTypeRows = Object.entries(typeProbs).map(([mt, p]) => {
+    const pA=Math.round(p*100), pB=100-pA;
+    const fav = p>0.52?`<span style="color:${colorA}">${esc(tA)}</span>`:p<0.48?`<span style="color:${colorB}">${esc(tB)}</span>`:`<span style="color:var(--muted)">Even</span>`;
+    return `<tr>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:.04em;padding:.4rem .6rem;text-align:left">${esc(mt)}</td>
+      <td style="padding:.4rem .6rem">
+        <div style="height:6px;background:var(--paper-dark);border-radius:3px;overflow:hidden;display:flex;width:120px">
+          <div style="width:${pA}%;background:${colorA};height:100%"></div>
+          <div style="width:${pB}%;background:${colorB};height:100%"></div>
+        </div>
+      </td>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;padding:.4rem .6rem;color:${colorA}">${pA}%</td>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;padding:.4rem .6rem;color:${colorB}">${pB}%</td>
+      <td style="padding:.4rem .6rem">${fav}</td>
+    </tr>`;
+  }).join("");
+
+  $("#xsOutput").innerHTML = `
+
+    <!-- HERO CARD -->
+    <div class="xs-hero">
+      <div class="xs-team-block">
+        <div class="xs-team-name" style="color:${colorA}">${esc(tA)}</div>
+        <div class="xs-win-pct">${(sum.winA*100).toFixed(1)}% series win</div>
+        <div class="xs-win-pct" style="margin-top:.2rem">xS ${sum.expA.toFixed(2)} maps</div>
+      </div>
+      <div>
+        <div class="xs-score-pred">
+          <span class="${tsA>=3?"xs-win":""}" style="${tsA>=3?"color:"+colorA:""}">${tsA}</span>
+          <span class="xs-sep">–</span>
+          <span class="${tsB>=3?"xs-win":""}" style="${tsB>=3?"color:"+colorB:""}">${tsB}</span>
+        </div>
+        <div class="xs-verdict">Predicted Series Score · ${(topProb*100).toFixed(1)}% likely</div>
+        <div class="xs-verdict" style="margin-top:.2rem;color:rgba(245,241,232,.25)">
+          Confidence: ${esc(confidence)}
+        </div>
+      </div>
+      <div class="xs-team-block right">
+        <div class="xs-team-name" style="color:${colorB}">${esc(tB)}</div>
+        <div class="xs-win-pct">${(sum.winB*100).toFixed(1)}% series win</div>
+        <div class="xs-win-pct" style="margin-top:.2rem">xS ${sum.expB.toFixed(2)} maps</div>
+      </div>
+    </div>
+
+    <!-- H2H -->
+    <div class="xs-h2h">
+      <div class="panel-lbl" style="margin-bottom:.8rem">Head to Head · All Logged Matches</div>
+      <div class="xs-h2h-row">
+        <div class="xs-h2h-stat">
+          <span class="xs-h2h-val" style="color:${colorA}">${h2h.wA}</span>
+          <span class="xs-h2h-lbl">${esc(tA)} Series W</span>
+        </div>
+        <div class="xs-h2h-stat">
+          <span class="xs-h2h-val" style="color:${colorA}">${h2h.mapsA}</span>
+          <span class="xs-h2h-lbl">Maps Won</span>
+        </div>
+        <div class="xs-h2h-stat">
+          <span class="xs-h2h-val" style="color:var(--muted)">${h2h.draws}</span>
+          <span class="xs-h2h-lbl">Draws</span>
+        </div>
+        <div class="xs-h2h-stat">
+          <span class="xs-h2h-val" style="color:var(--muted)">${h2h.mapsD}</span>
+          <span class="xs-h2h-lbl">Map Draws</span>
+        </div>
+        <div class="xs-h2h-stat">
+          <span class="xs-h2h-val" style="color:${colorB}">${h2h.mapsB}</span>
+          <span class="xs-h2h-lbl">Maps Won</span>
+        </div>
+        <div class="xs-h2h-stat">
+          <span class="xs-h2h-val" style="color:${colorB}">${h2h.wB}</span>
+          <span class="xs-h2h-lbl">${esc(tB)} Series W</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FACTOR BARS -->
+    <div class="xs-factors">
+
+      <div class="xs-factor">
+        <div class="xs-factor-lbl">Role SR Composite</div>
+        <div class="xs-bar-wrap">
+          ${factorBar("Tank",    srA.Tank||0,    srB.Tank||0,    v=>v)}
+          ${factorBar("DPS",     srA.DPS||0,     srB.DPS||0,     v=>v)}
+          ${factorBar("Support", srA.Support||0, srB.Support||0, v=>v)}
+        </div>
+      </div>
+
+      <div class="xs-factor">
+        <div class="xs-factor-lbl">Power Score</div>
+        <div class="xs-bar-wrap">
+          ${factorBar("Power", POWER_SCORE[tA]||0, POWER_SCORE[tB]||0, v=>v)}
+        </div>
+        <div style="margin-top:.8rem;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;display:flex;gap:.5rem;align-items:baseline">
+          <span style="color:${colorA}">${POWER_SCORE[tA]||"?"}</span>
+          <span style="color:var(--muted);font-size:1.1rem">vs</span>
+          <span style="color:${colorB}">${POWER_SCORE[tB]||"?"}</span>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:.1rem">Pre-tournament rating</div>
+      </div>
+
+      <div class="xs-factor">
+        <div class="xs-factor-lbl">Map Type Win %</div>
+        <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+          <thead><tr>
+            <th style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:.25rem .4rem;text-align:left;background:var(--paper-dark)">Type</th>
+            <th style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--paper-dark);padding:.25rem .4rem"></th>
+            <th style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${colorA};background:var(--paper-dark);padding:.25rem .4rem">A%</th>
+            <th style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${colorB};background:var(--paper-dark);padding:.25rem .4rem">B%</th>
+            <th style="background:var(--paper-dark);padding:.25rem .4rem"></th>
+          </tr></thead>
+          <tbody>${mapTypeRows}</tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- MAP-BY-MAP -->
+    <div class="section-head" style="margin-bottom:.8rem">
+      <h2 style="font-size:1.5rem">Per-Map xS</h2>
+      <span class="sh-sub">${mapType||"Series Average by Type Order"}</span>
+      <div class="section-rule"></div>
+    </div>
+    <div class="xs-map-grid">${mapCards}</div>
+
+    <!-- SCORE DISTRIBUTION -->
+    <div class="section-head" style="margin-bottom:.8rem">
+      <h2 style="font-size:1.5rem">Score Distribution</h2>
+      <span class="sh-sub">50,000-series Monte Carlo</span>
+      <div class="section-rule"></div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--rule);padding:1rem;margin-bottom:1rem">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:.4rem .6rem;text-align:left;background:var(--paper-dark);border-bottom:1px solid var(--rule)">Score</th>
+          <th style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:.4rem .6rem;background:var(--paper-dark);border-bottom:1px solid var(--rule)">Frequency</th>
+          <th style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:.4rem .6rem;background:var(--paper-dark);border-bottom:1px solid var(--rule)">Probability</th>
+          <th style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:.4rem .6rem;background:var(--paper-dark);border-bottom:1px solid var(--rule)">Winner</th>
+        </tr></thead>
+        <tbody>${scoreRows}</tbody>
+      </table>
+    </div>
+
+    <!-- METHODOLOGY NOTE -->
+    <div class="xs-method">
+      <strong>How xS is calculated:</strong>
+      xS (Expected Score) models each map as an independent Bernoulli trial with win probability <em>p</em> for Team A.
+      <em>p</em> is a weighted blend of four factors:
+      <strong>Role SR composite</strong> (40%) — weighted average SR across Tank (30%), DPS (35%), and Support (35%) for each team's starting five, fed through a logistic function on the difference;
+      <strong>Power score</strong> (40%) — the pre-tournament rating from the BGC power rankings, normalised to a probability;
+      <strong>Head-to-head</strong> (up to 15%, grows with sample size) — observed map win rate from logged matches, weighted by number of maps played;
+      <strong>Map-type affinity</strong> (5%) — composition archetype advantage on the specific map type (Dive teams gain on Control/Push; Poke teams gain on Hybrid/Escort).
+      A BO5 series is then simulated 50,000 times with the resulting <em>p</em> and a draw rate (default 4%, updated from logged data).
+      The distribution of terminal scores gives both the most likely score line and each team's series win probability.
+      <em>xS updates automatically as you log more matches — H2H weight grows with sample size.</em>
+    </div>
+  `;
+}
+
+fillSelect($("#xsTeamA"), TEAM_NAMES, TEAM_NAMES[0]);
+fillSelect($("#xsTeamB"), TEAM_NAMES, TEAM_NAMES[1]);
+$("#xsRun").addEventListener("click", renderXS);
+// Also hook tab open to init selects if needed
+
+</script>
+</body>
+</html>

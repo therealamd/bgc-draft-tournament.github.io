@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGC Community Draft Tournament — Draft Report Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,500;0,700;0,900;1,700&family=Barlow:ital,wght@0,400;0,500;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f1e8;
+    --paper-dark: #ece8dd;
+    --rule: #c8c0aa;
+    --accent: #c8102e;
+    --gold: #c49a2a;
+    --muted: #6b6458;
+    --white: #ffffff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Barlow', sans-serif;
+  }
+
+  /* ─── MASTHEAD ─────────────────────────────── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 6px solid var(--accent);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .masthead::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg, transparent, transparent 18px,
+      rgba(255,255,255,0.018) 18px, rgba(255,255,255,0.018) 36px
+    );
+  }
+  .masthead-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .masthead h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 12vw, 9rem);
+    letter-spacing: .04em;
+    line-height: .9;
+    position: relative;
+  }
+  .masthead h1 em { color: var(--accent); font-style: normal; display: block; }
+  .masthead-rule {
+    width: 80px; height: 3px;
+    background: var(--gold);
+    margin: 2rem auto 1rem;
+    position: relative;
+  }
+  .masthead-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 300;
+    font-size: 1rem;
+    letter-spacing: .18em;
+    color: rgba(245,241,232,.45);
+    text-transform: uppercase;
+    position: relative;
+  }
+  .masthead-intro {
+    max-width: 640px;
+    margin: 2.5rem auto 0;
+    font-size: .98rem;
+    line-height: 1.75;
+    color: rgba(245,241,232,.6);
+    position: relative;
+  }
+  .masthead-intro strong { color: rgba(245,241,232,.9); }
+
+  /* nav pills */
+  .nav-pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .6rem;
+    margin-top: 2.5rem;
+    position: relative;
+  }
+  .nav-pill {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    padding: .45rem 1.1rem;
+    border: 1px solid rgba(255,255,255,.18);
+    color: rgba(245,241,232,.7);
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all .2s;
+  }
+  .nav-pill:hover { border-color: var(--accent); color: var(--paper); background: rgba(200,16,46,.15); }
+
+  /* summary table on masthead */
+  .masthead-table {
+    width: 100%;
+    max-width: 700px;
+    margin: 2.5rem auto 0;
+    border-collapse: collapse;
+    position: relative;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+  .masthead-table th {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(245,241,232,.35);
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    padding: .4rem .7rem;
+    text-align: left;
+  }
+  .masthead-table th:not(:first-child) { text-align: right; }
+  .masthead-table td {
+    font-size: 13px;
+    padding: .55rem .7rem;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    color: rgba(245,241,232,.75);
+  }
+  .masthead-table td:not(:first-child) { text-align: right; font-weight: 500; }
+  .masthead-table .grade-cell { font-weight: 700; font-size: 15px; }
+  .masthead-table .pos { color: #4caf50; }
+  .masthead-table .neg { color: #ef5350; }
+
+  /* ─── PAGE LAYOUT ───────────────────────────── */
+  .team-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--rule);
+    page-break-before: always;
+  }
+
+  /* ─── TEAM HEADER ───────────────────────────── */
+  .team-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: stretch;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .team-header-left {
+    padding: 2rem 2.5rem;
+    border-right: 1px solid var(--rule);
+  }
+  .th-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .4rem;
+  }
+  .th-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: .95;
+    letter-spacing: .03em;
+  }
+  .th-captain {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: .6rem;
+    font-style: italic;
+  }
+  .th-captain strong { color: var(--ink); font-style: normal; }
+
+  .team-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 3rem;
+    background: var(--ink);
+    min-width: 160px;
+  }
+  .grade-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 6rem;
+    line-height: 1;
+    display: block;
+  }
+  .grade-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(245,241,232,.4);
+    display: block;
+    margin-top: -.2rem;
+  }
+
+  /* grade colors */
+  .gAplus  { color: #4caf50; }
+  .gBplus  { color: #64b5f6; }
+  .gB      { color: #90caf9; }
+  .gBminus { color: #90caf9; }
+  .gDplus  { color: #ef5350; }
+
+  /* ─── STATS BAR ──────────────────────────────── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--rule);
+  }
+  .stat-cell {
+    padding: 1.1rem 2rem;
+    border-right: 1px solid var(--rule);
+    text-align: center;
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    display: block;
+    line-height: 1;
+  }
+  .stat-lbl {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-top: .2rem;
+  }
+  .pos { color: #2e7d32; }
+  .neg { color: var(--accent); }
+  .neu { color: var(--ink); }
+
+  /* ─── BODY COLUMNS ───────────────────────────── */
+  .team-body {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    flex: 1;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* LEFT COLUMN */
+  .col-left {
+    border-right: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+  }
+  .summary-block {
+    padding: 1.8rem 2rem;
+    border-bottom: 1px solid var(--paper-dark);
+    background: var(--paper);
+  }
+  .summary-block p {
+    font-size: .92rem;
+    line-height: 1.75;
+    color: #3a3530;
+  }
+  .outlook-block {
+    padding: 1.6rem 2rem;
+    flex: 1;
+    background: var(--white);
+  }
+  .block-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .7rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .block-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  .outlook-block p {
+    font-size: .9rem;
+    line-height: 1.72;
+    color: #3a3530;
+    font-style: italic;
+  }
+
+  /* trade note */
+  .trade-note {
+    margin: 1rem 2rem;
+    padding: .85rem 1rem;
+    border-left: 3px solid var(--gold);
+    background: #fffbf0;
+  }
+  .trade-note-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: .3rem;
+  }
+  .trade-note p {
+    font-size: .82rem;
+    line-height: 1.6;
+    color: #4a3e1a;
+  }
+
+  /* RIGHT COLUMN — picks */
+  .col-right { background: var(--white); }
+
+  .picks-heading {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 1rem 1.8rem .5rem;
+    border-bottom: 1px solid var(--paper-dark);
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    background: var(--paper);
+  }
+  .picks-heading::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+  .pick {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .3rem .8rem;
+    padding: 1rem 1.8rem;
+    border-bottom: 1px solid var(--paper-dark);
+  }
+  .pick:last-child { border-bottom: none; }
+  .pick-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+  .pick-role-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    color: var(--white);
+  }
+  .rt-tank  { background: #1a3a6b; }
+  .rt-dps   { background: #c8102e; }
+  .rt-sup   { background: #1b6e3a; }
+  .rt-flex  { background: #6b3a8a; }
+  .rt-cap   { background: #7a5400; }
+
+  .pick-meta {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    grid-column: 1;
+  }
+  .pick-analysis {
+    font-size: .84rem;
+    line-height: 1.65;
+    color: #3a3530;
+    grid-column: 1 / -1;
+    margin-top: .1rem;
+  }
+  .pick-verdict {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 2px;
+  }
+  .verd-steal  { background: #d4edda; color: #155724; }
+  .verd-fair   { background: #dce8f5; color: #1a3a6b; }
+  .verd-over   { background: #f8d7da; color: #721c24; }
+  .verd-value  { background: #fff3cd; color: #7a5400; }
+  .verd-best   { background: #155724; color: #d4edda; }
+
+  /* color stripe at top of each team page */
+  .team-stripe { height: 7px; width: 100%; }
+
+  /* ─── FOOTER ────────────────────────────────── */
+  .site-footer {
+    background: var(--ink);
+    color: rgba(245,241,232,.35);
+    text-align: center;
+    padding: 1.4rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  @media print {
+    .masthead { min-height: auto; page-break-after: always; }
+    .team-page { page-break-before: always; min-height: auto; }
+    .nav-pills { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     MASTHEAD / COVER PAGE
+═══════════════════════════════════════════════ -->
+<div class="masthead" id="top">
+  <div class="masthead-eyebrow">Buckeye Gaming Collective &nbsp;·&nbsp; Summer 2026</div>
+  <h1>BGC Community<br><em>Draft Report Cards</em></h1>
+  <div class="masthead-rule"></div>
+  <div class="masthead-sub">Five-Team Invitational Draft &nbsp;·&nbsp; All Roles Evaluated &nbsp;·&nbsp; Normalized $1M Pool</div>
+
+  <p class="masthead-intro">
+    Thirty-six players. Five captains. One budget of <strong>$1,000,000</strong> in fictional draft currency
+    split evenly across five rosters. What follows is an independent analysis of every pick, grading each
+    team on talent acquisition, role construction, positional value, and budget efficiency.
+    True values are normalized so the entire pool equals exactly $1,000,000.
+  </p>
+
+  <table class="masthead-table">
+    <thead>
+      <tr>
+        <th>Team</th>
+        <th>Captain</th>
+        <th>Grade</th>
+        <th>Paid</th>
+        <th>True Value</th>
+        <th>Surplus / Deficit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:#D4537E;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:15px">Uncs</td>
+        <td>Grifdy</td>
+        <td class="grade-cell" style="color:#4caf50">A+</td>
+        <td>$177k</td><td>$280k</td>
+        <td class="pos">+$103k</td>
+      </tr>
+      <tr>
+        <td style="color:#1D9E75;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:15px">GLP-1 Grinders</td>
+        <td>Aussie</td>
+        <td class="grade-cell" style="color:#64b5f6">B+</td>
+        <td>$179k</td><td>$227k</td>
+        <td class="pos">+$48k</td>
+      </tr>
+      <tr>
+        <td style="color:#378ADD;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:15px">Forscythies</td>
+        <td>Forscythe</td>
+        <td class="grade-cell" style="color:#90caf9">B</td>
+        <td>$163k</td><td>$186k</td>
+        <td class="pos">+$23k</td>
+      </tr>
+      <tr>
+        <td style="color:#D85A30;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:15px">Pratty's Pals</td>
+        <td>Pratty</td>
+        <td class="grade-cell" style="color:#90caf9">B−</td>
+        <td>$201k</td><td>$178k</td>
+        <td class="neg">−$23k</td>
+      </tr>
+      <tr>
+        <td style="color:#7F77DD;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:15px">Terabyte Titans</td>
+        <td>Tera</td>
+        <td class="grade-cell" style="color:#ef5350">D+</td>
+        <td>$189k</td><td>$126k</td>
+        <td class="neg">−$63k</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <nav class="nav-pills">
+    <a class="nav-pill" href="#uncs">Uncs</a>
+    <a class="nav-pill" href="#grinders">GLP-1 Grinders</a>
+    <a class="nav-pill" href="#forscythies">Forscythies</a>
+    <a class="nav-pill" href="#pals">Pratty's Pals</a>
+    <a class="nav-pill" href="#titans">Terabyte Titans</a>
+  </nav>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     TEAM 1 — UNCS (GRIFDY)
+═══════════════════════════════════════════════ -->
+<div class="team-page" id="uncs">
+  <div class="team-stripe" style="background:linear-gradient(90deg,#D4537E,#a83060)"></div>
+
+  <div class="team-header">
+    <div class="team-header-left">
+      <div class="th-eyebrow">Captain · Grifdy &nbsp;·&nbsp; Team</div>
+      <div class="th-name" style="color:#D4537E">Uncs</div>
+      <div class="th-captain">Captain: <strong>Grifdy</strong> &nbsp;·&nbsp; Grifdy#1808 &nbsp;·&nbsp; Flex Support / Tank</div>
+    </div>
+    <div class="team-header-right">
+      <span class="grade-letter gAplus">A+</span>
+      <span class="grade-label">Draft Grade</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><span class="stat-val neu">$177k</span><span class="stat-lbl">Budget Spent</span></div>
+    <div class="stat-cell"><span class="stat-val neu">$280k</span><span class="stat-lbl">Normalized True Value</span></div>
+    <div class="stat-cell"><span class="stat-val pos">+$103k</span><span class="stat-lbl">Surplus</span></div>
+  </div>
+
+  <div class="team-body">
+    <div class="col-left">
+      <div class="summary-block">
+        <div class="block-label">Draft Summary</div>
+        <p>The undisputed winners of the BGC draft room. Grifdy constructed the most talent-dense roster in the field — landing a former professional player, two Masters-tier DPS threats, and a high-Diamond support core — all while spending $24,000 under cap. The Uncs enter Summer 2026 as the clear favorites on paper, assuming Lava's pro pedigree translates to the tournament format and Grifdy's tank-first instincts carry over from the support role he's known for.</p>
+      </div>
+
+      <div class="outlook-block">
+        <div class="block-label">Tournament Outlook</div>
+        <p>"Grifdy built a championship roster at a discount. The Uncs have elite talent at every position that matters — tank, DPS, and support — and entered the tournament with $24k to spare. The central question isn't whether they're the best team on paper; it's whether Lava's transition from tank to DPS role and Grifdy's in-game leadership translates under match pressure. If it does, everyone else is playing for second."</p>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="picks-heading">Pick-by-pick analysis</div>
+
+      <div class="pick">
+        <div class="pick-name">Lava <span class="pick-role-tag rt-dps">FDPS</span></div>
+        <div class="pick-verdict verd-value">Best Value</div>
+        <div class="pick-meta">Paid $76k &nbsp;·&nbsp; True Value $92k &nbsp;·&nbsp; Surplus +$16k</div>
+        <div class="pick-analysis">The crown jewel of the entire draft. Lava arrives with a Champion 4 tank rank from Season 1 and a résumé that includes genuine professional Overwatch experience — a level of play that simply shouldn't be available at $76,000. His Genji and Tracer pool gives the Uncs an elite carry threat at FDPS. The discount looks even more absurd when you factor in his pro pedigree. The one question mark: he's historically a tank player now slotted into DPS — but elite mechanical skill travels across roles at this level.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Grifdy <span class="pick-role-tag rt-cap">CAP · Tank</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $30k &nbsp;·&nbsp; True Value $62k &nbsp;·&nbsp; Surplus +$32k</div>
+        <div class="pick-analysis">A captain playing at GM 4000 SR on tank is an immediate roster anchor. Grifdy's Wuyang (4310 SR) and Roadhog (4136 SR) profiles show a player comfortable at the highest end of amateur competition. The implicit $30,000 captain cost is a bargain for a GM-floor tank who also understands the strategic side of team building. He drafted himself smartly.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Divina <span class="pick-role-tag rt-dps">FDPS</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $15k &nbsp;·&nbsp; True Value $43k &nbsp;·&nbsp; Surplus +$28k</div>
+        <div class="pick-analysis">Fifteen thousand dollars for a Masters-level DPS player is a heist. Divina's Tracer sits at 3644 SR in profile but her overall DPS mastery puts her at full Masters tier. The $28,000 delta between adjusted true value and paid price makes her the second-best per-dollar acquisition in the draft. Pairing her with Lava creates a DPS line that will overwhelm most rosters in this field.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">jisf <span class="pick-role-tag rt-dps">Hitscan DPS</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $27k &nbsp;·&nbsp; True Value $38k &nbsp;·&nbsp; Surplus +$11k</div>
+        <div class="pick-analysis">High-Diamond hitscan (Anran 3736 SR, Ana 3594) at $27,000 is excellent value. jisf's demonstrated flex between DPS and support gives Grifdy rare mid-series tactical flexibility. An $11,000 surplus pick that deepens an already elite damage line without compromising the support structure.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">HomieBaba <span class="pick-role-tag rt-sup">Main Sup</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $25k &nbsp;·&nbsp; True Value $36k &nbsp;·&nbsp; Surplus +$11k</div>
+        <div class="pick-analysis">A high-Diamond Lucio main (3853 SR) at $25,000 rounds out a support core that can keep Grifdy and Lava alive long enough to matter. HomieBaba's Kiriko (3229) provides a second flex threat. Another $11,000 surplus acquisition that rounds out the support depth without breaking the budget.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">sm6225 <span class="pick-role-tag rt-sup">Main Sup</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $1k &nbsp;·&nbsp; True Value $10k &nbsp;·&nbsp; Surplus +$9k</div>
+        <div class="pick-analysis">Gold-tier support acquired at minimum bid. Smart budget filler — at $1,000 there's zero downside. Mathematically the best per-dollar pick in the draft. Adds a seventh roster spot and qualifies the team for the extra $1,000 budget bonus.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">DeLille <span class="pick-role-tag rt-dps">Hitscan DPS</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Paid $3k &nbsp;·&nbsp; True Value $2k &nbsp;·&nbsp; Slight Overpay</div>
+        <div class="pick-analysis">An unranked Season 2 player with minimal competitive data. Rounds out the seven-man roster as depth insurance at a price the team could comfortably absorb given $24k in remaining budget. Low-risk, low-reward — exactly the right approach for the final roster spot.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     TEAM 2 — GLP-1 GRINDERS (AUSSIE)
+═══════════════════════════════════════════════ -->
+<div class="team-page" id="grinders">
+  <div class="team-stripe" style="background:linear-gradient(90deg,#1D9E75,#0f6e56)"></div>
+
+  <div class="team-header">
+    <div class="team-header-left">
+      <div class="th-eyebrow">Captain · Aussie &nbsp;·&nbsp; Team</div>
+      <div class="th-name" style="color:#1D9E75">GLP-1 Grinders</div>
+      <div class="th-captain">Captain: <strong>Aussie</strong> &nbsp;·&nbsp; aussiebot#11669 &nbsp;·&nbsp; Tank</div>
+    </div>
+    <div class="team-header-right">
+      <span class="grade-letter gBplus">B+</span>
+      <span class="grade-label">Draft Grade</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><span class="stat-val neu">$179k</span><span class="stat-lbl">Budget Spent</span></div>
+    <div class="stat-cell"><span class="stat-val neu">$227k</span><span class="stat-lbl">Normalized True Value</span></div>
+    <div class="stat-cell"><span class="stat-val pos">+$48k</span><span class="stat-lbl">Surplus</span></div>
+  </div>
+
+  <div class="team-body">
+    <div class="col-left">
+      <div class="summary-block">
+        <div class="block-label">Draft Summary</div>
+        <p>Aussie assembled the second-most efficient roster in the draft, landing the single best value pick of the entire event in RET while building a coherent team around a strong support backbone. The Grinders have real ceiling — but a costly overpay on NotGunner and a slight premium on seouless prevent this from being an A-tier haul. Post-draft activity further sharpens the roster.</p>
+      </div>
+
+      <div class="trade-note">
+        <div class="trade-note-label">Post-Draft Trade</div>
+        <p><strong>jj183 traded away · NotGunner acquired.</strong> Despite NotGunner's current Platinum rank sitting below jj183's Diamond profile on paper, this is a net positive for the Grinders. NotGunner's all-role flex capability, extensive prior competitive experience, and comfort across tank, DPS, and support give Aussie genuine roster depth that jj183's more specialized profile didn't provide. Experience trumps current rank here — NotGunner's versatility fills real gaps and gives the Grinders a reliable Swiss Army option heading into match play.</p>
+      </div>
+
+      <div class="outlook-block">
+        <div class="block-label">Tournament Outlook</div>
+        <p>"The GLP-1 Grinders have a legitimate support core that can challenge anyone in the field — RET and toeinfection at full strength is arguably the best support duo in the tournament. Aussie's Masters-level tank shot-calling ties the room together. The post-draft acquisition of NotGunner adds flex depth that jj183's more specialized profile couldn't provide, giving Aussie adaptable options heading into match play. A finals appearance is realistic; the title depends on whether the DPS line can match Grifdy's Uncs."</p>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="picks-heading">Pick-by-pick analysis</div>
+
+      <div class="pick">
+        <div class="pick-name">RET <span class="pick-role-tag rt-sup">Flex / Open</span></div>
+        <div class="pick-verdict verd-best">Draft Steal</div>
+        <div class="pick-meta">Paid $39k &nbsp;·&nbsp; True Value $76k &nbsp;·&nbsp; Surplus +$37k</div>
+        <div class="pick-analysis">The single greatest value acquisition in the BGC draft. RET is a Champion 4 support player — top 97 on the leaderboard — picked up for $39,000 against an adjusted true value of $76,000. That's a $37,000 surplus on a player who is arguably the best support in the entire field. At Champion 4 with 1,348 competitive hours and a Kiriko-Lucio-Ana pool, RET brings a level of mechanical polish that will immediately stabilize the Grinders' support line. There is simply no equivalent value anywhere else in this draft.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Aussie <span class="pick-role-tag rt-cap">CAP · Tank</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $25k &nbsp;·&nbsp; True Value $45k &nbsp;·&nbsp; Surplus +$20k</div>
+        <div class="pick-analysis">A high Masters tank (3900 SR) leading his own team is the ideal captain archetype. Aussie's Winston-Zarya-D.Va pool is dive-heavy and synergizes well with an aggressive support like RET. The $20,000 surplus on his implicit captain value makes this one of the better captain self-picks in the entire draft.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">toeinfection <span class="pick-role-tag rt-sup">Flex Sup</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $36k &nbsp;·&nbsp; True Value $52k &nbsp;·&nbsp; Surplus +$16k</div>
+        <div class="pick-analysis">A 4000 SR flex support acquired for $36,000 — a $16,000 surplus. toeinfection's Ana (3514 SR), Kiriko (3376), and Juno (3363) form one of the most complete flex support hero pools in the tournament. Pairing them with RET creates a support duo that can legitimately compete at the top of the bracket and will be a matchup nightmare for any team.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">seouless <span class="pick-role-tag rt-dps">FDPS</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Paid $40k &nbsp;·&nbsp; True Value $27k &nbsp;·&nbsp; Slight Overpay</div>
+        <div class="pick-analysis">Diamond flex DPS (3500 SR) at a slight premium over normalized value. seouless brings Tracer and Genji at high levels, which fits the Grinders' likely aggressive dive playstyle alongside Aussie's tank picks. The overpay is modest and the role fills a genuine need.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">NotGunner <span class="pick-role-tag rt-flex">Flex (via Trade)</span></div>
+        <div class="pick-verdict verd-steal">Trade Upgrade</div>
+        <div class="pick-meta">Acquired from Tera &nbsp;·&nbsp; jj183 sent away &nbsp;·&nbsp; Net Positive</div>
+        <div class="pick-analysis">The post-draft trade that addresses the roster's biggest question mark. jj183 was a solid Diamond DPS with a Kiriko secondary, but NotGunner brings something more valuable for this team's construction: genuine all-role versatility. His Mizuki, Brigitte, Hazard, and multi-tank pool give Aussie a legitimate Swiss Army knife — someone who can slot into gaps mid-tournament without forcing a structural reset. Prior competitive experience further elevates the trade return. On raw current rank NotGunner sits lower, but in a tournament context depth and flexibility often matter more than peak SR.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Xirfix <span class="pick-role-tag rt-tank">Tank</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $2k &nbsp;·&nbsp; True Value $8k &nbsp;·&nbsp; Surplus +$6k</div>
+        <div class="pick-analysis">Gold-tier tank (2590 SR, Sigma and Widowmaker specialist) acquired for just $2,000. Excellent depth pick — Xirfix provides a secondary tank option and gives Aussie roster flexibility without touching meaningful budget. A clean minimum-tier pickup.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Benasaurs <span class="pick-role-tag rt-tank">Tank</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Paid $2k &nbsp;·&nbsp; True Value $3k &nbsp;·&nbsp; Near Fair</div>
+        <div class="pick-analysis">Silver-tier tank (Winston 1732 SR) at $2,000 — appropriately priced depth insurance. Benasaurs won't see regular rotation but fills the seventh roster spot and qualifies the Grinders for the extra $1,000 budget bonus. Low-cost, low-risk insurance.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     TEAM 3 — FORSCYTHIES (FORSCYTHE)
+═══════════════════════════════════════════════ -->
+<div class="team-page" id="forscythies">
+  <div class="team-stripe" style="background:linear-gradient(90deg,#378ADD,#185fa5)"></div>
+
+  <div class="team-header">
+    <div class="team-header-left">
+      <div class="th-eyebrow">Captain · Forscythe &nbsp;·&nbsp; Team</div>
+      <div class="th-name" style="color:#378ADD">Forscythies</div>
+      <div class="th-captain">Captain: <strong>Forscythe</strong> &nbsp;·&nbsp; Forscythe#11964 &nbsp;·&nbsp; Flex Support</div>
+    </div>
+    <div class="team-header-right">
+      <span class="grade-letter gB">B</span>
+      <span class="grade-label">Draft Grade</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><span class="stat-val neu">$163k</span><span class="stat-lbl">Budget Spent</span></div>
+    <div class="stat-cell"><span class="stat-val neu">$186k</span><span class="stat-lbl">Normalized True Value</span></div>
+    <div class="stat-cell"><span class="stat-val pos">+$23k</span><span class="stat-lbl">Surplus</span></div>
+  </div>
+
+  <div class="team-body">
+    <div class="col-left">
+      <div class="summary-block">
+        <div class="block-label">Draft Summary</div>
+        <p>Forscythe drafted with admirable patience and landed genuine talent at the top of the board — lexx and starryflower are both serious pickups — but a pair of costly mid-round missteps on GoldenGear and NinerActual prevented what could have been an A-range haul. The Forscythies are well-constructed but slightly overpaid for their tier overall, leaving money on the table that sharper bidding could have redirected to depth.</p>
+      </div>
+
+      <div class="outlook-block">
+        <div class="block-label">Tournament Outlook</div>
+        <p>"The Forscythies are a genuine contender with a strong top end — lexx is one of the best supports in the tournament and starryflower anchors the tank line capably. The damage line is their achilles heel: GoldenGear and NinerActual are solid but were both overpaid, and neither represents the elite DPS threat they'll need to match Grifdy's Uncs in a bracket final. Expect a strong group stage and a competitive semifinal run."</p>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="picks-heading">Pick-by-pick analysis</div>
+
+      <div class="pick">
+        <div class="pick-name">lexx <span class="pick-role-tag rt-sup">Main Sup</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $43k &nbsp;·&nbsp; True Value $58k &nbsp;·&nbsp; Surplus +$15k</div>
+        <div class="pick-analysis">Forscythe's best moment in the draft room. lexx arrives with a Grandmaster Lucio (4216 SR), Wuyang (3928), and Ana (3757) — an elite main support profile with 2,417 total hours. At $43,000 against an adjusted true value of $58,000, this is a $15,000 surplus pick on a player who could anchor any roster in this field. The Forscythies' championship aspirations run directly through lexx's ability to enable the tank and create space.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">starryflower <span class="pick-role-tag rt-tank">Tank</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $23k &nbsp;·&nbsp; True Value $34k &nbsp;·&nbsp; Surplus +$11k</div>
+        <div class="pick-analysis">High-Diamond Reinhardt specialist (3829 SR) with Sigma (3566) and Winston (3538) secondary — $23,000 for a player whose adjusted value sits at $34,000. starryflower's diverse tank pool (3,849 total hours) gives Forscythe genuine flexibility in how they structure their frontline. An $11,000 surplus that solidifies the tank line at a fair price.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">NinerActual <span class="pick-role-tag rt-dps">Hitscan DPS</span></div>
+        <div class="pick-verdict verd-over">Overpaid</div>
+        <div class="pick-meta">Paid $40k &nbsp;·&nbsp; True Value $34k &nbsp;·&nbsp; Overpay −$6k</div>
+        <div class="pick-analysis">A $6,000 overpay against normalized value — not catastrophic, but NinerActual's Sojourn-Kiriko-Ashe profile at Diamond tier is a slot where sharper bidding would have walked away earlier. Still a solid Diamond hitscan with 834 total hours; the quality is real, the price was just slightly inflated by draft room competition.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">GoldenGear <span class="pick-role-tag rt-dps">Hitscan DPS</span></div>
+        <div class="pick-verdict verd-over">Overpaid</div>
+        <div class="pick-meta">Paid $50k &nbsp;·&nbsp; True Value $33k &nbsp;·&nbsp; Overpay −$17k</div>
+        <div class="pick-analysis">The Forscythies' most questionable spend. GoldenGear is a legitimate low Masters player across all roles — a genuinely impressive baseline — but $50,000 for a player whose normalized true value is $33,000 is a $17,000 overpay. His Season 2 profile showed no hero SR data, and the all-role versatility, while real, may not translate cleanly to a specific DPS slot. This pick needed $10,000–15,000 shaved off the bid.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Trench <span class="pick-role-tag rt-dps">FDPS</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $1k &nbsp;·&nbsp; True Value $12k &nbsp;·&nbsp; Surplus +$11k</div>
+        <div class="pick-analysis">One of the most underpriced picks in the entire draft. Platinum FDPS (3000 SR Junkrat specialist with 5 hours on the hero) acquired at the minimum $1,000. Trench's aggressive Junkrat play and Orisa secondary gives the Forscythies a third damage option at essentially no cost. The kind of savvy minimum bid that defines efficient draft rooms.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">zephyrine <span class="pick-role-tag rt-sup">Main Sup</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $1k &nbsp;·&nbsp; True Value $3k &nbsp;·&nbsp; Surplus +$2k</div>
+        <div class="pick-analysis">Silver-tier support (Mercy primary, 1300 SR) at minimum bid. Provides roster depth and the extra-player budget bonus at near-zero cost. Exactly the right approach for the seventh roster slot.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Forscythe <span class="pick-role-tag rt-cap">CAP · FS</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Implicit $5k &nbsp;·&nbsp; True Value $12k</div>
+        <div class="pick-analysis">The captain brings a Flex Support profile with a Kiriko-Wuyang-Anran pool and a noted affinity for team chemistry (flagging friends GoldenGear and jj183 in the sign-up). Without a submitted career profile her exact SR ceiling is estimated, but organizational experience managing a roster adds intangible cohesion that doesn't show in the numbers.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     TEAM 4 — PRATTY'S PALS (PRATTY)
+═══════════════════════════════════════════════ -->
+<div class="team-page" id="pals">
+  <div class="team-stripe" style="background:linear-gradient(90deg,#D85A30,#993c1d)"></div>
+
+  <div class="team-header">
+    <div class="team-header-left">
+      <div class="th-eyebrow">Captain · Pratty &nbsp;·&nbsp; Team</div>
+      <div class="th-name" style="color:#D85A30">Pratty's Pals</div>
+      <div class="th-captain">Captain: <strong>Pratty</strong> &nbsp;·&nbsp; Pratty#11833 &nbsp;·&nbsp; Flex Support</div>
+    </div>
+    <div class="team-header-right">
+      <span class="grade-letter gBminus">B−</span>
+      <span class="grade-label">Draft Grade</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><span class="stat-val neu">$201k</span><span class="stat-lbl">Budget Spent (Full Cap)</span></div>
+    <div class="stat-cell"><span class="stat-val neu">$178k</span><span class="stat-lbl">Normalized True Value</span></div>
+    <div class="stat-cell"><span class="stat-val neg">−$23k</span><span class="stat-lbl">Deficit</span></div>
+  </div>
+
+  <div class="team-body">
+    <div class="col-left">
+      <div class="summary-block">
+        <div class="block-label">Draft Summary</div>
+        <p>Pratty's Pals spent their entire $201,000 budget and came away with a mixed bag. Mafia is a legitimate GM-level DPS anchor and Crazerio corrects to a Masters-tier tank — a solid core. But the surrounding pieces were acquired at or above market value across the board. The Pals are competitive but not efficient, and the full-cap spend returned below-average value. Execution will need to overperform the draft grade.</p>
+      </div>
+
+      <div class="outlook-block">
+        <div class="block-label">Tournament Outlook</div>
+        <p>"Pratty's Pals have the talent to be dangerous — Mafia alone can take over matches — but the draft efficiency tells a harder story. Spending the full $201,000 while coming in $23,000 below true value means the Pals will need to overperform their paper value at multiple positions. If Crazerio is truly Masters-level and Mafia goes nuclear on Pharah, this team reaches semifinals. If those two struggle, the support and depth slots won't compensate."</p>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="picks-heading">Pick-by-pick analysis</div>
+
+      <div class="pick">
+        <div class="pick-name">Mafia <span class="pick-role-tag rt-dps">FDPS</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Paid $62k &nbsp;·&nbsp; True Value $58k &nbsp;·&nbsp; Slight Overpay</div>
+        <div class="pick-analysis">The Pals' franchise piece. Mafia arrives as a Grandmaster-tier flex DPS — Pharah at 4271 SR, Tracer at 4113, Echo at 4051 — with 1,743 competitive hours. That's a top-two DPS profile in the entire tournament field. At $62,000 against a true value of $58,000, the slight overpay is acceptable for a player of this caliber. Mafia is the kind of pick who can single-handedly win maps on Pharah. Pratty's Pals are built to ride his performances.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Crazerio <span class="pick-role-tag rt-tank">Tank</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Paid $42k &nbsp;·&nbsp; True Value $38k &nbsp;·&nbsp; Slight Overpay</div>
+        <div class="pick-analysis">Corrected to Masters-tier on tank, Crazerio is a legitimate frontline anchor despite the notorious dog-photo submission. His Sigma-JQ-Hazard pool is solid at Masters level. The $42,000 spend against a $38,000 true value is a modest overpay. The absence of verifiable Season 2 data adds uncertainty — captains who went higher were taking a leap of faith that Pratty was right to make but at a slight premium.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Sockdolager <span class="pick-role-tag rt-dps">Hitscan DPS</span></div>
+        <div class="pick-verdict verd-over">Overpaid</div>
+        <div class="pick-meta">Paid $45k &nbsp;·&nbsp; True Value $29k &nbsp;·&nbsp; Overpay −$16k</div>
+        <div class="pick-analysis">Diamond hitscan (3600 SR) acquired for $45,000 — $16,000 above normalized true value. Sockdolager's Hog-Sojourn-Genji pool is respectable but the bidding ran away here. In a draft where Diamond hitscan players were available for $26–40k, paying $45,000 represents a notable inefficiency that constrained what Pratty could do in later rounds.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Th0rnt0ns <span class="pick-role-tag rt-sup">Main Sup</span></div>
+        <div class="pick-verdict verd-over">Overpaid</div>
+        <div class="pick-meta">Paid $35k &nbsp;·&nbsp; True Value $26k &nbsp;·&nbsp; Overpay −$9k</div>
+        <div class="pick-analysis">A Diamond-floor main support (Brigitte 3695, Mizuki 3517, Lucio 2904) paid $35,000 against a true value of $26,000. The $9,000 overpay isn't ruinous but represents another instance of Pratty's draft getting slightly away from them in the mid-rounds. Th0rnt0ns is a capable support who will hold the line; the price just didn't match the value.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">EFRY6S <span class="pick-role-tag rt-sup">Flex Sup</span></div>
+        <div class="pick-verdict verd-over">Overpaid</div>
+        <div class="pick-meta">Paid $12k &nbsp;·&nbsp; True Value $7k &nbsp;·&nbsp; Overpay −$5k</div>
+        <div class="pick-analysis">Gold-tier flex support with an OW1 background, acquired for $12,000 against a normalized value of $7,000. EFRY6S brings Plat peaks from OW1 — the ceiling is there — but the current Season 2 form is unverified. A $5,000 overpay that reflects optimism over current evidence.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">BleedingLove <span class="pick-role-tag rt-sup">Main Sup</span></div>
+        <div class="pick-verdict verd-steal">Steal</div>
+        <div class="pick-meta">Paid $1k &nbsp;·&nbsp; True Value $3k &nbsp;·&nbsp; Surplus +$2k</div>
+        <div class="pick-analysis">A console Lifeweaver onetrick acquired at minimum bid. BleedingLove's Platinum SR (3216 Lifeweaver) is real, but the console-to-PC transition and single-hero dependency cap the ceiling significantly. The $1,000 spend is smart minimum bid usage — this slot costs nothing and potentially provides genuine depth if the transition lands.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">GWIPPY <span class="pick-role-tag rt-dps">Hitscan DPS</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Paid $4k &nbsp;·&nbsp; True Value $3k &nbsp;·&nbsp; Near Fair</div>
+        <div class="pick-analysis">An unranked Season 2 player with a Moira and Soldier: 76 pool — picked up at $4,000. Fair pricing for an unknown quantity. Pratty's Pals had limited budget left at this stage and found a reasonable depth option without committing significant resources.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Pratty <span class="pick-role-tag rt-cap">CAP · FS</span></div>
+        <div class="pick-verdict verd-value">Value Pick</div>
+        <div class="pick-meta">Implicit $0 &nbsp;·&nbsp; True Value $14k &nbsp;·&nbsp; Pure Surplus</div>
+        <div class="pick-analysis">The captain's $0 cost means any value Pratty contributes on the field is pure surplus. With a Kiriko-Sojourn-Cassidy pool, Pratty can fill flex support or hybrid DPS roles. Organizational experience managing competitive rosters adds intangible cohesion — and at zero budget cost, that intangible is pure upside.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     TEAM 5 — TERABYTE TITANS (TERA)
+═══════════════════════════════════════════════ -->
+<div class="team-page" id="titans">
+  <div class="team-stripe" style="background:linear-gradient(90deg,#7F77DD,#534ab7)"></div>
+
+  <div class="team-header">
+    <div class="team-header-left">
+      <div class="th-eyebrow">Captain · Tera &nbsp;·&nbsp; Team</div>
+      <div class="th-name" style="color:#7F77DD">Terabyte Titans</div>
+      <div class="th-captain">Captain: <strong>Tera</strong> &nbsp;·&nbsp; Terabyte#11853 &nbsp;·&nbsp; Tank</div>
+    </div>
+    <div class="team-header-right">
+      <span class="grade-letter gDplus">D+</span>
+      <span class="grade-label">Draft Grade</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><span class="stat-val neu">$189k</span><span class="stat-lbl">Budget Spent</span></div>
+    <div class="stat-cell"><span class="stat-val neu">$126k</span><span class="stat-lbl">Normalized True Value</span></div>
+    <div class="stat-cell"><span class="stat-val neg">−$63k</span><span class="stat-lbl">Deficit (Largest in Field)</span></div>
+  </div>
+
+  <div class="team-body">
+    <div class="col-left">
+      <div class="summary-block">
+        <div class="block-label">Draft Summary</div>
+        <p>The Terabyte Titans have the worst draft efficiency in the field by a significant margin — spending $189,000 to acquire $126,000 in adjusted true value represents a $63,000 deficit, the largest in the tournament. Two catastrophic overpays at support define this draft: jhunli and Mmmmmyuh together cost $73,000 for players worth a combined $21,000. Aurum is a genuine bright spot, and the post-draft acquisition of jj183 via trade helps the DPS depth — but one GM carry and one smart trade cannot fully offset the damage done in the support slots.</p>
+      </div>
+
+      <div class="outlook-block">
+        <div class="block-label">Tournament Outlook</div>
+        <p>"The Terabyte Titans are the cautionary tale of the BGC Summer 2026 draft — a reminder that budget mismanagement at support can sink a roster regardless of how good your carry is. Aurum is legitimately elite and will put up numbers, and the post-draft trade landing jj183 is a genuine positive that sharpens the DPS line. But he cannot 1v2 the support deficit — jhunli and Mmmmmyuh collectively cost more than a Masters-tier acquisition would have while returning Bronze-to-Plat level value. A group stage exit is the most likely outcome unless Aurum's performances are genuinely historic."</p>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="picks-heading">Pick-by-pick analysis</div>
+
+      <div class="pick">
+        <div class="pick-name">Aurum <span class="pick-role-tag rt-dps">Hitscan DPS</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Paid $60k &nbsp;·&nbsp; True Value $56k &nbsp;·&nbsp; Slight Overpay</div>
+        <div class="pick-analysis">The Titans' one legitimate anchor. Aurum's Kiriko (4214 SR), Emre (4034), and Cassidy (3621) paint the picture of a GM-floor hitscan player with elite carry potential. At $60,000 against a true value of $56,000, the slight $4,000 overpay is acceptable for a player of this caliber. Aurum is the real deal — and he'll need to be the unquestioned carry for this roster to have any chance of competing above the group stage.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">jj183 <span class="pick-role-tag rt-dps">FDPS (via Trade)</span></div>
+        <div class="pick-verdict verd-steal">Trade Gain</div>
+        <div class="pick-meta">Acquired from GLP-1 Grinders &nbsp;·&nbsp; NotGunner sent away &nbsp;·&nbsp; Upgrades Depth</div>
+        <div class="pick-analysis">The one bright spot in Tera's post-draft activity. Sending NotGunner to the Grinders and landing jj183 is a genuine win for the Titans. jj183's Diamond flex DPS profile (Kiriko 3443, Cassidy 3175) is more reliable than NotGunner's Platinum ceiling, and his Kiriko secondary gives Tera's threadbare support line an unexpected flex option. At $26,000 original cost against a $33,000 true value, jj183 was already one of the few picks in Tera's draft that made sense. Getting him here via trade is a rare correct decision in an otherwise difficult draft picture.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">jhunli <span class="pick-role-tag rt-sup">Flex Sup</span></div>
+        <div class="pick-verdict verd-over">Critical Overpay</div>
+        <div class="pick-meta">Paid $55k &nbsp;·&nbsp; True Value $19k &nbsp;·&nbsp; Overpay −$36k</div>
+        <div class="pick-analysis">The single worst individual pick of the entire draft. jhunli is a Platinum-tier flex support — Gold 2 on tank, Platinum 3 on support as her season highs — paid $55,000. Against a normalized true value of $19,000, that's a $36,000 surplus paid in the wrong direction. For $55,000, Tera could have landed a Diamond-to-Masters caliber player. The availability note (out of country until June 9th) adds further question marks. This pick is the primary reason Tera's grade collapses to D+.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Mmmmmyuh <span class="pick-role-tag rt-sup">Flex Sup</span></div>
+        <div class="pick-verdict verd-over">Critical Overpay</div>
+        <div class="pick-meta">Paid $18k &nbsp;·&nbsp; True Value $2k &nbsp;·&nbsp; Overpay −$16k</div>
+        <div class="pick-analysis">Bronze 1 flex support (Kiriko 1408 SR, Juno 1212) paid $18,000. Normalized true value: $2,000. That $16,000 overpay is indefensible by any metric — Bronze-tier players should be minimum-bid depth picks. Mmmmmyuh will play hard and wants to improve, but this compounded jhunli's damage catastrophically. Combined, the two support slots consumed $73,000 for $21,000 in value — the defining budgetary error of the tournament.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Blizno <span class="pick-role-tag rt-sup">Main Sup</span></div>
+        <div class="pick-verdict verd-over">Overpaid</div>
+        <div class="pick-meta">Paid $10k &nbsp;·&nbsp; True Value $3k &nbsp;·&nbsp; Overpay −$7k</div>
+        <div class="pick-analysis">A support player with no current Season 2 rank and a historical Moira-Mercy profile — paid $10,000 against a normalized value of $3,000. The $7,000 overpay is far less catastrophic than the two slots above it, but continues the Titans' clear pattern of systematically overspending at support. This slot needed a $1,000–2,000 bid, not ten.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">caesarnox <span class="pick-role-tag rt-tank">Tank</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Paid $5k &nbsp;·&nbsp; True Value $3k &nbsp;·&nbsp; Near Fair</div>
+        <div class="pick-analysis">Silver-tier tank (Zenyatta 1634 SR, Kiriko 1608) at $5,000 — paid near fair value. caesarnox doesn't bring high-end competitive credentials but costs essentially nothing in the context of a $200,000 budget. The $2,000 overpay is rounding noise in this roster's larger budget picture.</div>
+      </div>
+
+      <div class="pick">
+        <div class="pick-name">Tera <span class="pick-role-tag rt-cap">CAP · Tank</span></div>
+        <div class="pick-verdict verd-fair">Fair</div>
+        <div class="pick-meta">Implicit $15k &nbsp;·&nbsp; True Value $10k</div>
+        <div class="pick-analysis">The captain submitted no career profile, so the exact competitive ceiling is estimated. His known JQ-Kiriko-Winston pool from the captain sign-up suggests a mid-tier tank with support flexibility. The $15,000 implicit value is slightly above the $10,000 estimate, but Tera's BGC organizational experience and dive-player background add intangible leadership value that the numbers can't capture — the one genuine positive in a difficult draft picture.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
+<div class="site-footer">
+  BGC Community Draft Tournament &nbsp;·&nbsp; Summer 2026 &nbsp;·&nbsp; Report cards based on normalized $1,000,000 draft pool &nbsp;·&nbsp; All SR data sourced from submitted career profiles
+</div>
+
+</body>
+</html>
