@@ -1,2 +1,4 @@
 Bgc Community Draft Tournament Stats!
-[Open Page](bgc_draft_report_cards.html)
+[Draft Report Cards](bgc_draft_report_cards.html)
+[Power Rankings](bgc_power_rankings.html)
+[Stat Tracker](bgc_stat_tracker.html)
